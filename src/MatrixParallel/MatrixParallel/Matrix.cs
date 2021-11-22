@@ -65,7 +65,7 @@ namespace MatrixParallel
                     resMatrix[i, j] = random.Next(50);
                 }
             }
-            Matrix result = new Matrix(resMatrix);
+            var result = new Matrix(resMatrix);
             return result;
         }
  
@@ -108,7 +108,6 @@ namespace MatrixParallel
                 {
                     strAr[i] += Matr[i, j] + " ";
                 }
-
                 strAr[i].TrimEnd(' ');
             }
             File.WriteAllLines(filePath, strAr);
@@ -128,7 +127,6 @@ namespace MatrixParallel
             }
  
             Matrix res = new Matrix(Rows, matr.Cols);
- 
             for (int i = 0; i < Rows; i++)
             {
                 for (int j = 0; j < matr.Cols; j++)
@@ -175,20 +173,16 @@ namespace MatrixParallel
                             }
                         }
                     }
-                } );
- 
+                });
             }
- 
             foreach (var thread in  threads)
             {
                 thread.Start();
             }
- 
             foreach (var thread in  threads)
             {
                 thread.Join();
             }
- 
             return res;
         }
  
@@ -211,6 +205,5 @@ namespace MatrixParallel
             }
             return sizeEqual && valEqual;
         }
- 
     }
 }
