@@ -1,16 +1,24 @@
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
  
 namespace MatrixParallel
 {
+    /// <summary>
+    /// Class for matrix object and operations on it
+    /// </summary>
     public class Matrix
     {
         private int Rows { get; set; }
         private int Cols { get; set; }
         private long[,] Matr { get; set; }
  
+        /// <summary>
+        /// Constructor for Matrix by given parameters
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <param name="cols"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public Matrix(int rows, int cols)
         {
             if (rows <= 0)
@@ -28,6 +36,10 @@ namespace MatrixParallel
             Matr = matr;
         }
 
+        /// <summary>
+        /// 2dArray to an object "Matrix"
+        /// </summary>
+        /// <param name="matrix"></param>
         public Matrix(long[,] matrix)
         {
             Rows = matrix.GetLength(0);
@@ -35,6 +47,12 @@ namespace MatrixParallel
             Matr = matrix;
         }
  
+        /// <summary>
+        /// Generates a Matrix with random elements by given parameters 
+        /// </summary>
+        /// <param name="rows"></param>
+        /// <param name="columns"></param>
+        /// <returns></returns>
         public static Matrix Generate (int rows, int columns)
         {
             var random = new Random();
@@ -51,6 +69,10 @@ namespace MatrixParallel
             return result;
         }
  
+        /// <summary>
+        /// Constructor that gets a matrix from given file
+        /// </summary>
+        /// <param name="filePath"></param>
         public Matrix (string filePath)
         {
             string[] lines = File.ReadAllLines(filePath);
@@ -73,6 +95,10 @@ namespace MatrixParallel
             Matr = matrix;
         }
 
+        /// <summary>
+        /// Writes Matrix to a file
+        /// </summary>
+        /// <param name="filePath"></param>
         public void WriteMatrix (string filePath)
         {
             string [] strAr = new string [Rows];
@@ -88,6 +114,12 @@ namespace MatrixParallel
             File.WriteAllLines(filePath, strAr);
         }
 
+        /// <summary>
+        /// Multiplies given Matrix to the second one sequentially
+        /// </summary>
+        /// <param name="matr"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public Matrix SeqMatrixMult (Matrix matr)
         {
             if (Cols != matr.Rows) 
@@ -111,13 +143,19 @@ namespace MatrixParallel
         }
         
  
+        /// <summary>
+        /// Multiplies given Matrix to the second one paralleled
+        /// </summary>
+        /// <param name="matr"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public Matrix ParMatrMatrix(Matrix matr)
         {
             if (Cols != matr.Rows) 
             {
                 throw new ArgumentOutOfRangeException(nameof(matr), "Matrices of these sizes cannot be multiplied");
             }
- 
+            
             var threads = new Thread[Environment.ProcessorCount];
             var chunkSize = Rows / threads.Length + 1;
             Matrix res = new Matrix(Rows, matr.Cols);
@@ -154,6 +192,12 @@ namespace MatrixParallel
             return res;
         }
  
+        /// <summary>
+        /// Checks whether 2 matrices are equal
+        /// </summary>
+        /// <param name="m1"></param>
+        /// <param name="m2"></param>
+        /// <returns></returns>
         public static bool MatrEqual (Matrix m1, Matrix m2) 
         {
             bool sizeEqual = (m1.Rows == m2.Rows) && (m1.Cols == m2.Cols);

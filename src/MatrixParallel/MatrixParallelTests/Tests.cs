@@ -2,10 +2,7 @@ using System;
 using NUnit.Framework;
 
 using MatrixParallel;
-
 namespace MatrixParallelTests
-
-
 {
     public class Tests
     {
@@ -57,7 +54,6 @@ namespace MatrixParallelTests
                 Matrix seqRes = m1.SeqMatrixMult(m2);
 
                 Assert.IsTrue(Matrix.MatrEqual(seqRes, parRes));
-
             }
         }
 
