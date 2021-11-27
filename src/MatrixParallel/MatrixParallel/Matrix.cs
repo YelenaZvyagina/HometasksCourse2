@@ -1,7 +1,8 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
- 
+
 namespace MatrixParallel
 {
     /// <summary>
@@ -9,17 +10,14 @@ namespace MatrixParallel
     /// </summary>
     public class Matrix
     {
-        private int Rows { get; set; }
-        private int Cols { get; set; }
-        private long[,] Matr { get; set; }
+        private readonly int _rows;
+        private readonly int _cols;
+        private readonly long[,] _matrix;
  
         /// <summary>
         /// Constructor for Matrix by given parameters
         /// </summary>
-        /// <param name="rows"></param>
-        /// <param name="cols"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public Matrix(int rows, int cols)
+        private Matrix(int rows, int cols)
         {
             if (rows <= 0)
             {
@@ -30,33 +28,29 @@ namespace MatrixParallel
                 throw new ArgumentOutOfRangeException(nameof(cols), "Number of columns should be positive");
             }
             
-            var matr = new long [rows, cols];
-            Rows = rows;
-            Cols = cols;
-            Matr = matr;
+            var matrix = new long[rows, cols];
+            _rows = rows;
+            _cols = cols;
+            _matrix = matrix;
         }
 
         /// <summary>
         /// 2dArray to an object "Matrix"
         /// </summary>
-        /// <param name="matrix"></param>
         public Matrix(long[,] matrix)
         {
-            Rows = matrix.GetLength(0);
-            Cols = matrix.GetLength(1);
-            Matr = matrix;
+            _rows = matrix.GetLength(0);
+            _cols = matrix.GetLength(1);
+            _matrix = matrix;
         }
  
         /// <summary>
         /// Generates a Matrix with random elements by given parameters 
         /// </summary>
-        /// <param name="rows"></param>
-        /// <param name="columns"></param>
-        /// <returns></returns>
-        public static Matrix Generate (int rows, int columns)
+        public static Matrix Generate(int rows, int columns)
         {
             var random = new Random();
-            var resMatrix = new long [rows, columns];
+            var resMatrix = new long[rows, columns];
             
             for (int i = 0; i < rows; i++)
             {
@@ -65,20 +59,18 @@ namespace MatrixParallel
                     resMatrix[i, j] = random.Next(50);
                 }
             }
-            var result = new Matrix(resMatrix);
-            return result;
+            return new Matrix(resMatrix);
         }
  
         /// <summary>
         /// Constructor that gets a matrix from given file
         /// </summary>
-        /// <param name="filePath"></param>
-        public Matrix (string filePath)
+        public Matrix(string filePath)
         {
-            string[] lines = File.ReadAllLines(filePath);
-            int standLength = lines[0].TrimEnd(' ').Split(' ').Length;
+            var lines = File.ReadAllLines(filePath);
+            var standLength = lines[0].TrimEnd(' ').Split(' ').Length;
 
-            long[,] matrix = new long [lines.Length, standLength];
+            var matrix = new long[lines.Length, standLength];
  
             for (int i = 0; i < lines.Length; i++)
             {
@@ -86,90 +78,85 @@ namespace MatrixParallel
                 var row = row1.Split(' ');
                 for (int j = 0; j < row.Length; ++j)
                 {
-                    Int64.TryParse(row[j], out var n);
+                    if (!Int64.TryParse(row[j], out var n))
+                    {
+                        throw new InvalidDataException("Matrix in a file should be comprised of integers");
+                    }
                     matrix[i, j] = n;
                 }
-            }
-            Rows = lines.Length;
-            Cols = standLength;
-            Matr = matrix;
+            } 
+            _rows = lines.Length;
+            _cols = standLength;
+            _matrix = matrix;
         }
 
         /// <summary>
         /// Writes Matrix to a file
         /// </summary>
-        /// <param name="filePath"></param>
-        public void WriteMatrix (string filePath)
+        public void WriteMatrix(string filePath) 
         {
-            string [] strAr = new string [Rows];
-            for (int i = 0; i < Rows; i++)
+            var stringBuilder = new StringBuilder(_cols);
+            for (int i = 0; i < _rows; i++)
             {
-                for (int j = 0; j < Cols; j++)
+                for (int j = 0; j < _cols; j++)
                 {
-                    strAr[i] += Matr[i, j] + " ";
+                    stringBuilder.Append(_matrix[i, j]+ " ");
                 }
-                strAr[i].TrimEnd(' ');
+                stringBuilder.Append('\n');
             }
-            File.WriteAllLines(filePath, strAr);
+            File.WriteAllText(filePath,stringBuilder.ToString());
         }
 
         /// <summary>
         /// Multiplies given Matrix to the second one sequentially
         /// </summary>
-        /// <param name="matr"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public Matrix SeqMatrixMult (Matrix matr)
+        public Matrix SeqMatrixMult(Matrix matrix)
         {
-            if (Cols != matr.Rows) 
+            if (_cols != matrix._rows) 
             {
-                throw new ArgumentOutOfRangeException(nameof(matr), "Matrices of these sizes cannot be multiplied");
+                throw new ArgumentOutOfRangeException(nameof(matrix), "Matrices of these sizes cannot be multiplied");
             }
  
-            Matrix res = new Matrix(Rows, matr.Cols);
-            for (int i = 0; i < Rows; i++)
+            var res = new Matrix(_rows, matrix._cols);
+            for (var i = 0; i < _rows; i++)
             {
-                for (int j = 0; j < matr.Cols; j++)
+                for (var j = 0; j < matrix._cols; j++)
                 {
-                    for (int l = 0; l < Cols; l++)
+                    for (var l = 0; l < _cols; l++)
                     {
-                        res.Matr[i, j] += Matr[i, l] * matr.Matr[l, j];
+                        res._matrix[i, j] += _matrix[i, l] * matrix._matrix[l, j];
                     }
                 }
             }
             return res;
         }
         
- 
         /// <summary>
         /// Multiplies given Matrix to the second one paralleled
         /// </summary>
-        /// <param name="matr"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public Matrix ParMatrMatrix(Matrix matr)
+        public Matrix ParMatrixMult(Matrix matrix)
         {
-            if (Cols != matr.Rows) 
+            if (_cols != matrix._rows) 
             {
-                throw new ArgumentOutOfRangeException(nameof(matr), "Matrices of these sizes cannot be multiplied");
+                throw new ArgumentOutOfRangeException(nameof(matrix), "Matrices of these sizes cannot be multiplied");
             }
             
-            var threads = new Thread[Environment.ProcessorCount];
-            var chunkSize = Rows / threads.Length + 1;
-            Matrix res = new Matrix(Rows, matr.Cols);
+            var threads = new Thread[Math.Min(Environment.ProcessorCount, _rows)];;
+            var chunkSize = _rows / threads.Length + 1;
+            var res = new Matrix(_rows, matrix._cols);
  
             for (int i = 0; i < threads.Length; i++)
             {
                 var localI = i;
                 threads[i] = new Thread(() =>
                 {
-                    for (int j = localI * chunkSize; j < (localI + 1) * chunkSize && j < Rows; j++)
+                    for (int j = localI * chunkSize; j < (localI + 1) * chunkSize && j < _rows; j++)
                     {
-                        for (int k = 0; k < matr.Cols; k++)
+                        for (int k = 0; k < matrix._cols; k++)
                         {
-                            for (int l = 0; l < Cols; l++)
+                            for (int l = 0; l < _cols; l++)
                             {
-                                res.Matr[j, k] += Matr[j, l] * matr.Matr[l, k];
+                                res._matrix[j, k] += _matrix[j, l] * matrix._matrix[l, k];
                             }
                         }
                     }
@@ -189,18 +176,18 @@ namespace MatrixParallel
         /// <summary>
         /// Checks whether 2 matrices are equal
         /// </summary>
-        /// <param name="m1"></param>
-        /// <param name="m2"></param>
-        /// <returns></returns>
-        public static bool MatrEqual (Matrix m1, Matrix m2) 
+        public static bool MatrixEqual(Matrix m1, Matrix m2) 
         {
-            bool sizeEqual = (m1.Rows == m2.Rows) && (m1.Cols == m2.Cols);
-            bool valEqual = true;
-            for (int i = 0; i < m1.Rows; i++)
+            var sizeEqual = m1._rows == m2._rows && m1._cols == m2._cols;
+            var valEqual = true;
+            for (int i = 0; i < m1._rows; i++)
             {
-                for (int j = 0; j < m1.Cols; j++)
+                for (int j = 0; j < m1._cols; j++)
                 {
-                    if (m1.Matr[i, j] != m2.Matr[i, j] ) {valEqual = false;}
+                    if (m1._matrix[i, j] != m2._matrix[i, j])
+                    {
+                        valEqual = false;
+                    }
                 }
             }
             return sizeEqual && valEqual;

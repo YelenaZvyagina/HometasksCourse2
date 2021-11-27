@@ -2,12 +2,11 @@
 
 namespace MatrixParallel
 {
-    class Program
+    static class Program
     {
         /// <summary>
         /// Reads 2 matrices from text files and prints result of multiplication to new file
         /// </summary>
-        /// <param name="args"></param>
         static void Main(string[] args)
         {
             if (args.Length != 2)
@@ -18,7 +17,7 @@ namespace MatrixParallel
 
             var matrix1 = new Matrix(args[0]);
             var matrix2 = new Matrix(args[1]);
-            var result = matrix1.ParMatrMatrix(matrix2);
+            var result = matrix1.ParMatrixMult(matrix2);
             result.WriteMatrix("../../../Result.txt");
         }
     }

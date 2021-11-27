@@ -11,11 +11,7 @@ namespace MatrixParallel
         /// <summary>
         /// Calculates the time of multiplication 2 matrices the given way
         /// </summary>
-        /// <param name="matrix1"></param>
-        /// <param name="matrix2"></param>
-        /// <param name="fun"></param>
-        /// <returns></returns>
-        private static long Timer (Matrix matrix1, Matrix matrix2, Func<Matrix, Matrix, Matrix> fun)
+        private static long Timer(Matrix matrix1, Matrix matrix2, Func<Matrix, Matrix, Matrix> fun)
         {
             var watch = new Stopwatch();
             watch.Start();
@@ -27,24 +23,23 @@ namespace MatrixParallel
         /// <summary>
         /// Measures average time and variance and prints the result to console
         /// </summary>
-        /// <param name="fun"></param>
-        public static void Measure (Func<Matrix, Matrix, Matrix> fun)
+        public static void Measure(Func<Matrix, Matrix, Matrix> fun)
         {
-            const int minsize = 100;
-            var maxSize = 2100;
-            var step = 500;
-            var mesNum = 10;
+            const int minSize = 100;
+            const int maxSize = 2100;
+            const int step = 500;
+            const int mesNum = 10;
 
-            for (int size = minsize; size <= maxSize; size += step)
+            for (int size = minSize; size <= maxSize; size += step)
             {
-                long timeCounted = 0;
-                long variance = 0;
+                var timeCounted = 0L;
+                var variance = 0L;
 
                 for (int mes = 1; mes <= mesNum; mes++)
                 {
                     Matrix m1 = Matrix.Generate(size, size);
                     Matrix m2 = Matrix.Generate(size, size);
-                    long time = Timer(m1, m2, fun);
+                    var time = Timer(m1, m2, fun);
                     timeCounted += time;
                     variance += time * time;
                 }
