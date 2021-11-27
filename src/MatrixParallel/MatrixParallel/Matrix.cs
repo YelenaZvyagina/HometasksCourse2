@@ -52,9 +52,9 @@ namespace MatrixParallel
             var random = new Random();
             var resMatrix = new long[rows, columns];
             
-            for (int i = 0; i < rows; i++)
+            for (var i = 0; i < rows; i++)
             {
-                for (int j = 0; j < columns; j++)
+                for (var j = 0; j < columns; j++)
                 {
                     resMatrix[i, j] = random.Next(50);
                 }
@@ -72,13 +72,13 @@ namespace MatrixParallel
 
             var matrix = new long[lines.Length, standLength];
  
-            for (int i = 0; i < lines.Length; i++)
+            for (var i = 0; i < lines.Length; i++)
             {
                 var row1 = lines[i].TrimEnd(' ');
                 var row = row1.Split(' ');
-                for (int j = 0; j < row.Length; ++j)
+                for (var j = 0; j < row.Length; ++j)
                 {
-                    if (!Int64.TryParse(row[j], out var n))
+                    if (!long.TryParse(row[j], out var n))
                     {
                         throw new InvalidDataException("Matrix in a file should be comprised of integers");
                     }
@@ -96,9 +96,9 @@ namespace MatrixParallel
         public void WriteMatrix(string filePath) 
         {
             var stringBuilder = new StringBuilder(_cols);
-            for (int i = 0; i < _rows; i++)
+            for (var i = 0; i < _rows; i++)
             {
-                for (int j = 0; j < _cols; j++)
+                for (var j = 0; j < _cols; j++)
                 {
                     stringBuilder.Append(_matrix[i, j]+ " ");
                 }
@@ -141,20 +141,20 @@ namespace MatrixParallel
                 throw new ArgumentOutOfRangeException(nameof(matrix), "Matrices of these sizes cannot be multiplied");
             }
             
-            var threads = new Thread[Math.Min(Environment.ProcessorCount, _rows)];;
+            var threads = new Thread[Math.Min(Environment.ProcessorCount, _rows)];
             var chunkSize = _rows / threads.Length + 1;
             var res = new Matrix(_rows, matrix._cols);
  
-            for (int i = 0; i < threads.Length; i++)
+            for (var i = 0; i < threads.Length; i++)
             {
                 var localI = i;
                 threads[i] = new Thread(() =>
                 {
-                    for (int j = localI * chunkSize; j < (localI + 1) * chunkSize && j < _rows; j++)
+                    for (var j = localI * chunkSize; j < (localI + 1) * chunkSize && j < _rows; j++)
                     {
-                        for (int k = 0; k < matrix._cols; k++)
+                        for (var k = 0; k < matrix._cols; k++)
                         {
-                            for (int l = 0; l < _cols; l++)
+                            for (var l = 0; l < _cols; l++)
                             {
                                 res._matrix[j, k] += _matrix[j, l] * matrix._matrix[l, k];
                             }
@@ -180,9 +180,9 @@ namespace MatrixParallel
         {
             var sizeEqual = m1._rows == m2._rows && m1._cols == m2._cols;
             var valEqual = true;
-            for (int i = 0; i < m1._rows; i++)
+            for (var i = 0; i < m1._rows; i++)
             {
-                for (int j = 0; j < m1._cols; j++)
+                for (var j = 0; j < m1._cols; j++)
                 {
                     if (m1._matrix[i, j] != m2._matrix[i, j])
                     {

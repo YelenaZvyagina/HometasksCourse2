@@ -2,12 +2,12 @@
 
 namespace MatrixParallel
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
         /// Reads 2 matrices from text files and prints result of multiplication to new file
         /// </summary>
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (args.Length != 2)
             {

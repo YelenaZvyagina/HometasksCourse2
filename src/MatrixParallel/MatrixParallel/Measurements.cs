@@ -30,15 +30,15 @@ namespace MatrixParallel
             const int step = 500;
             const int mesNum = 10;
 
-            for (int size = minSize; size <= maxSize; size += step)
+            for (var size = minSize; size <= maxSize; size += step)
             {
                 var timeCounted = 0L;
                 var variance = 0L;
 
-                for (int mes = 1; mes <= mesNum; mes++)
+                for (var mes = 1; mes <= mesNum; mes++)
                 {
-                    Matrix m1 = Matrix.Generate(size, size);
-                    Matrix m2 = Matrix.Generate(size, size);
+                    var m1 = Matrix.Generate(size, size);
+                    var m2 = Matrix.Generate(size, size);
                     var time = Timer(m1, m2, fun);
                     timeCounted += time;
                     variance += time * time;
