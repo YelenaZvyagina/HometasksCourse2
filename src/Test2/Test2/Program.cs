@@ -32,7 +32,7 @@ namespace Test2
                 return singleThreaded > multithreading ? $"SingleThreaded realization is quicker, Hash is {singleRes}" : $"Multithreading realization is quicker";
             }
             
-        
+            Compare(filePath);
         }
     }
 }

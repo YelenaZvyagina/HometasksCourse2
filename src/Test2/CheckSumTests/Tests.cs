@@ -6,17 +6,17 @@ namespace CheckSumTests
 {
     public class Tests
     {
-        [SetUp]
+        [Test]
         public void CheckForException()
         {
             var exSeq = Assert.Throws<ArgumentException>(() => CheckSum.CheckSumSimple("whatever"));
             Assert.That(exSeq is { Message: "There is no fle or directory there" });
         }
         
-        [SetUp]
+        [Test]
         public void CheckForExceptionMultiThreaded()
         {
-            var exSeq = Assert.Throws<ArgumentException>(() => CheckSum.CheckSumMultiThreaded("something not fileable"));
+            var exSeq = Assert.ThrowsAsync<ArgumentException>(() => CheckSum.CheckSumMultiThreaded("somethingnotfileable") );
             Assert.That(exSeq is { Message: "There is no fle or directory there" });
         }
 
