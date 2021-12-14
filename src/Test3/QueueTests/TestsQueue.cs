@@ -22,7 +22,7 @@ namespace QueueTests
         public void DequeueTest()
         {
             var result = testQueue.Dequeue();
-            Assert.AreEqual( "abc", result);
+            Assert.AreEqual( "lowpriority", result);
         }
 
         [Test]
