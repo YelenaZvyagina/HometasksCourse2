@@ -9,7 +9,7 @@ namespace Lazy
     {
         private bool _isCalculated;
         private readonly Func<T> _supplier;
-        private T? _result;
+        private T _result;
         
         public SingleThreadedLazy(Func<T> supplier)
         {
