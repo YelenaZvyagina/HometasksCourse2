@@ -3,7 +3,7 @@
     /// <summary>
     /// Interface, describing classes for lazy calculations
     /// </summary>
-    public interface ILazy<T>
+    public interface ILazy<out T>
     {
         /// <summary>
         /// Method to get the result of calculation

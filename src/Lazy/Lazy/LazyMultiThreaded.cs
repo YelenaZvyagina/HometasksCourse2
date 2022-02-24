@@ -8,14 +8,14 @@ namespace Lazy
     public class LazyMultiThreaded<T> : ILazy<T>
     {
         private bool _isCalculated;
-        private T _result;
+        private T? _result;
         private readonly Func<T> _supplier;
         private readonly object _lockObject = new();
 
         public LazyMultiThreaded(Func<T> supplier)
         {
-            _supplier = supplier;
             ArgumentNullException.ThrowIfNull(supplier);
+            _supplier = supplier;
         }
         
         public T Get()

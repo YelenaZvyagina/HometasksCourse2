@@ -7,7 +7,7 @@ namespace Lazy
     /// </summary>
     public static class LazyFactory
     {
-        public static ILazy<T> CreateSingleThreadedLazy<T>(Func<T> supplier)
+        public static ILazy<T> CreateSingleThreadedLazy<T>(Func<T> supplier) 
         {
             return new SingleThreadedLazy<T>(supplier);
         }
