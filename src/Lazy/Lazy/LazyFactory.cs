@@ -1,4 +1,5 @@
 ﻿using System;
+using Lazy;
 
 namespace Lazy;
 
@@ -8,7 +9,9 @@ namespace Lazy;
 public static class LazyFactory
 {
     public static ILazy<T> CreateSingleThreadedLazy<T>(Func<T> supplier)
-         => new SingleThreadedLazy<T>(supplier);
+    {
+        return new SingleThreadedLazy<T>(supplier);
+    }
 
     public static ILazy<T> CreateMultiThreadedLazy<T>(Func<T> supplier)
     {

@@ -27,13 +27,13 @@ public class Tests
     [Test]
     public void NullSupplierSingleThread()
     {
-        Assert.Throws<ArgumentNullException>(() => LazyFactory.CreateSingleThreadedLazy<string>(null));
+        Assert.Throws<ArgumentNullException>(() => LazyFactory.CreateSingleThreadedLazy<string>(null!));
     }
 
     [Test]
     public void NullSupplierMultiTread()
     {
-        Assert.Throws<ArgumentNullException>(() => LazyFactory.CreateMultiThreadedLazy<string>(null));
+        Assert.Throws<ArgumentNullException>(() => LazyFactory.CreateMultiThreadedLazy<string>(null!));
     }
 
     [Test]

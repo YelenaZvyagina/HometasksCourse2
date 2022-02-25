@@ -8,7 +8,7 @@ namespace Lazy
 public class LazyMultiThreaded<T> : ILazy<T>
 {
     private bool _isCalculated;
-    private T _result;
+    private T? _result;
     private readonly Func<T> _supplier;
     private readonly object _lockObject = new();
 
@@ -18,7 +18,7 @@ public class LazyMultiThreaded<T> : ILazy<T>
         _supplier = supplier;
     }
         
-    public T Get()
+    public T? Get()
     {
         if (_isCalculated) return _result;
         lock (_lockObject)
