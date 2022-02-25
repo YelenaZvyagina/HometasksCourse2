@@ -10,18 +10,22 @@ namespace LazyTests;
     /// </summary>
 public class Tests
 {
-    private Func<int> _supplier;
+    private readonly Func<int> _supplier;
     private int _countSmth;
 
-    [SetUp]
-    public void Setup()
+    public Tests()
     {
-        _countSmth = 0;
         _supplier = () =>
         {
             _countSmth += 15;
             return _countSmth;
         };
+    }
+
+    [SetUp]
+    public void Setup()
+    {
+        _countSmth = 0;
     }
 
     [Test]
