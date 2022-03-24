@@ -1,7 +1,9 @@
 module Parenthesis.Parentheses
 
 let parenthesis = Map [ (')', '('); ('}', '{'); (']', '[') ]
-let containsValue v = Map.fold (fun state _ value -> state || (value.Equals(v)) ) false parenthesis
+let containsValue v = Map.fold (fun state _ value -> state || value.Equals(v) ) false parenthesis
+
+// checks whether the string contains valid parentheses sequence
 let containsValidParenthesis string =
     let listFromGivenString = Seq.toList string
     let rec inner list (stack: char list) =
