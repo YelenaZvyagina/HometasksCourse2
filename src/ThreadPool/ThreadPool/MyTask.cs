@@ -50,10 +50,20 @@ namespace ThreadPool
     
             public void RunTask()
             {
+                if (IsCompleted) return;
                 try
                 {
+                    are.WaitOne();
                     Result = _taskFunction();
                     IsCompleted = true;
+                    are.Set();
+                    lock (_lockObject)
+                    {
+                        while (_continueTasks.TryDequeue(out var t))
+                        {
+                            t();
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
