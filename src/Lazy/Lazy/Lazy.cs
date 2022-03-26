@@ -1,6 +1,6 @@
-﻿using System;
+﻿namespace Lazy;
 
-namespace Lazy;
+using System;
 
 /// <summary>
 /// Class, implementing single-threaded lazy calculations for given function
@@ -8,8 +8,8 @@ namespace Lazy;
 public class SingleThreadedLazy<T>: ILazy<T>
 {
     private bool _isCalculated;
-    private readonly Func<T> _supplier;
-    private T? _result;
+    private Func<T> _supplier;
+    private T _result;
         
     public SingleThreadedLazy(Func<T> supplier)
     {
@@ -17,7 +17,7 @@ public class SingleThreadedLazy<T>: ILazy<T>
         _supplier = supplier;
     }
     
-    public T? Get()
+    public T Get()
     {
         if (_isCalculated)
         {
@@ -25,6 +25,7 @@ public class SingleThreadedLazy<T>: ILazy<T>
         }
         _result = _supplier();
         _isCalculated = true;
+        _supplier = null;
         return _result;
     }
 }

@@ -1,43 +1,30 @@
-using System;
-using System.Threading;
-using Lazy;
-using NUnit.Framework;
-
 namespace LazyTests;
 
-    /// <summary>
-    /// Test class for creating lazy objects and getting result correctly
-    /// </summary>
+using System;
+using System.Threading;
+using NUnit.Framework;
+
+/// <summary>
+/// Test class for creating lazy objects and getting result correctly
+/// </summary>
 public class Tests
 {
     private readonly Func<int> _supplier;
-    private int _countSmth;
+    private int _count;
 
     public Tests()
     {
         _supplier = () =>
         {
-            _countSmth += 15;
-            return _countSmth;
+            _count += 15;
+            return _count;
         };
     }
 
     [SetUp]
     public void Setup()
     {
-        _countSmth = 0;
-    }
-
-    [Test]
-    public void NullSupplierSingleThread()
-    {
-        Assert.Throws<ArgumentNullException>(() => LazyFactory.CreateSingleThreadedLazy<string>(null!));
-    }
-
-    [Test]
-    public void NullSupplierMultiTread()
-    {
-        Assert.Throws<ArgumentNullException>(() => LazyFactory.CreateMultiThreadedLazy<string>(null!));
+        _count = 0;
     }
 
     [Test]
