@@ -5,7 +5,7 @@ using NUnit.Framework;
 public class Tests
 {
     private readonly MyNUnit.MyNUnit _myNUnit = new();
-    private const string PathForTestProject = @"..\..\..\..\ProjectForTests1\obj\";
+    private const string PathForTestProject = "..\\..\\..\\..\\ProjectForTests1\\obj\\";
 
     [SetUp]
     public void Setup()
