@@ -1,4 +1,4 @@
-﻿namespace MyNUnit
+﻿namespace MyNUnit;
 
 using System;
 using System.Collections.Concurrent;

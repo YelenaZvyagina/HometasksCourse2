@@ -1,27 +1,26 @@
-﻿using MyNUnit;
+﻿namespace ProjectForTests1;
 
-namespace ProjectForTests1
+using MyNUnit;
+
+public class TestClass
 {
-    public class TestClass
-    {
-        public static int Count;
+    public static int Count;
 
-        [BeforeClass]
-        public static void BeforeClassMethod() => Count = 101;
+    [BeforeClass]
+    public static void BeforeClassMethod() => Count = 101;
 
-        [Before]
-        public void BeforeMethod() => Count += 1;
+    [Before]
+    public void BeforeMethod() => Count += 1;
 
-        [After]
-        public void AfterMethod() => Count -= 2;
+    [After]
+    public void AfterMethod() => Count -= 2;
 
-        [Test]
-        public void JustTest1() => Count += 2;
+    [Test]
+    public void JustTest1() => Count += 2;
 
-        [Test]
-        public void JustTest2() => Count += 4;
+    [Test]
+    public void JustTest2() => Count += 4;
 
-        [AfterClass]
-        public static void AfterClassMethod() => Count /= 5; 
-    }
+    [AfterClass]
+    public static void AfterClassMethod() => Count /= 5; 
 }

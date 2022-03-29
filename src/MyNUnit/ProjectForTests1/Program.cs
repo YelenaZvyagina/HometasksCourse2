@@ -1,10 +1,10 @@
-﻿namespace ProjectForTests1
+﻿namespace ProjectForTests1;
+
+public class Program
 {
-    public class Program
+    static void Main(string[] args) 
     {
-        static void Main(string[] args) 
-        {
-        }
     }
 }
+
 
