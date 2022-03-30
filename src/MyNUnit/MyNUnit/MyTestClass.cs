@@ -73,7 +73,7 @@ public class MyTestClass
             var watch = System.Diagnostics.Stopwatch.StartNew();
             try
             {
-                object obj = method.IsStatic ? null : Activator.CreateInstance(method.DeclaringType);
+                var obj = method.IsStatic ? null : Activator.CreateInstance(method.DeclaringType!);
                 method.Invoke(obj, null);
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
@@ -85,7 +85,7 @@ public class MyTestClass
                 var elapsedMs = watch.ElapsedMilliseconds;
                 if (isTest)
                 {
-                    if (attribute.Expected == exception.GetType())
+                    if (attribute != null && attribute.Expected == exception.GetType())
                     {
                         _testStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs ));
                     }

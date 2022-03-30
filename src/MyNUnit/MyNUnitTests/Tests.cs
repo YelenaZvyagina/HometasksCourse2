@@ -26,13 +26,6 @@ public class Tests
         var countFromCanceled = ProjectForTests1.CanceledTests.Count;
         Assert.IsFalse(countFromCanceled == 0);
     }
-
-    [Test]
-    public void IgnoredAndExpectedTest()
-    {
-        var countFromIgnored = ProjectForTests1.IgnoredAndExpectedTests.CountForIgnore;
-        Assert.AreEqual(4, countFromIgnored);
-    }
 }
 
 
