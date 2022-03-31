@@ -28,7 +28,7 @@ let phoneBookTests =
             testCase "tests for file functions" <| fun _ ->
                 let testingBook = []
                 let addedRecord = addRecord "Nastya" 12345678789L testingBook
-                let filepath = "C:\Users\ezvya\OneDrive\Desktop\study\HometasksSem3\src\PhoneBook\PhoneBookTests\pb.txt"
+                let filepath = "..\PhoneBookTests\pb.txt"
                 let savd = savePhoneBookToFile testingBook filepath
                 let read = getPhoneBookFromFile filepath
                 Expect.equal read.[1].name "Nastya" ""
