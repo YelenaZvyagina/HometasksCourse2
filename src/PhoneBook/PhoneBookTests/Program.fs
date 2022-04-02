@@ -1,8 +1,4 @@
 module PhoneBookTests.Main
 
-open Expecto
-
-let config = { FsCheckConfig.defaultConfig with maxTest = 10000 }
-
 [<EntryPoint>]
-let main argv = Tests.runTestsInAssembly defaultConfig argv
+let main argv = 0

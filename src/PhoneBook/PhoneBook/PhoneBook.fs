@@ -1,5 +1,6 @@
 ﻿module PhoneBook.PhoneBook
 
+open System
 open System.IO
 
 [<Struct>]
@@ -23,12 +24,12 @@ let findNameByPhone phone phoneBook =
 let printAllPhoneBook phoneBook = List.iter(fun (x : PhoneBookRecord) -> printfn $"Name %A{x.name}. Phone %A{string x.phoneNumber}") phoneBook
 
 let savePhoneBookToFile phoneBook filepath =
-    let dataToWriteInFile = List.map (fun (x : PhoneBookRecord) -> $"Name %A{x.name}. Phone %A{x.phoneNumber}") phoneBook
+    let dataToWriteInFile = List.map (fun (x : PhoneBookRecord) -> (String.Format("{0} {1}", x.name, (x.phoneNumber |> string)))) phoneBook
     File.WriteAllLines(filepath, dataToWriteInFile)
 
 let getPhoneBookFromFile filepath =
     let getDataFromString (s : string) =
         let split = s.Split(' ')
-        if split.Length <> 2 then failwith "Incorrect data format in a file, \"name phoneNumber\" expected"
-        PhoneBookRecord(split.[0], int64 split.[1])
+        if split.Length <> 2 then failwith $"Incorrect data format in a file, \"name phoneNumber\" expected, {s} got "
+        PhoneBookRecord(split.[0], (split.[1] |> int64))
     File.ReadAllLines filepath |> Seq.toList |> List.map getDataFromString

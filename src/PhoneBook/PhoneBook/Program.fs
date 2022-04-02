@@ -37,7 +37,7 @@ let rec program book =
         program book
     | "--findname" ->
         printfn "Names for this phone found"
-        printAll (findPhoneByName input.[1] book)
+        printAll (findNameByPhone (int64 input.[1]) book)
         program book
     | "--printall" ->
         printAllPhoneBook book
