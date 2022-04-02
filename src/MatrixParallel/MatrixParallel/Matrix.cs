@@ -117,18 +117,18 @@ public class Matrix
             throw new ArgumentOutOfRangeException(nameof(matrix), "Matrices of these sizes cannot be multiplied");
         }
  
-        var res = new Matrix(_rows, matrix._columns);
+        var resultingMatrix = new Matrix(_rows, matrix._columns);
         for (var i = 0; i < _rows; i++)
         {
             for (var j = 0; j < matrix._columns; j++)
             {
                 for (var l = 0; l < _columns; l++)
                 {
-                    res._matrix[i, j] += _matrix[i, l] * matrix._matrix[l, j];
+                    resultingMatrix._matrix[i, j] += _matrix[i, l] * matrix._matrix[l, j];
                 }
             }
         }
-        return res;
+        return resultingMatrix;
     }
         
     /// <summary>
