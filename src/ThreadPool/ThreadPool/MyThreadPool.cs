@@ -10,82 +10,88 @@ namespace ThreadPool
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         private readonly Thread[] _threads;
         private readonly AutoResetEvent _newTask = new(false);
+        private readonly AutoResetEvent threadStopped = new(false);
         private object lockObject = new ();
-        private int numberOfTasks = 0;
+        private int numberOfTasks;
+        private int numberOfWorkingThreads;
         
+
+
         public MyThreadPool(int threadCount)
         {
             if (threadCount < 1) throw new ArgumentException("Amount of threads should be positive");
-            _threads = new Thread[threadCount];
             
-            for (var i = 0; i < threadCount; i++)
+            _threads = new Thread[threadCount];
+
+            for (var i = 0; i < threadCount; ++i)
             {
-                _threads[i] = new Thread(() => ExecuteTasks(_cancellationTokenSource.Token));
-                /*{
-                    while (!_cancellationTokenSource.IsCancellationRequested)
-                   {
-                       if (TasksQueued.TryDequeue(out var task))
-                       {
-                           //_newTask.Set();
-                           task();
-                       }
-                       else
-                       {
-                           _newTask.WaitOne();
-                       }
-                   } 
-                });*/
+                _threads[i] = new Thread(() =>
+                {
+                    while (true)
+                    {
+                        if (_cancellationTokenSource.Token.IsCancellationRequested && TasksQueued.IsEmpty)
+                        {
+                            Interlocked.Decrement(ref numberOfWorkingThreads);
+                            threadStopped.Set();
+                            return;
+                        }
+
+                        if (TasksQueued.TryDequeue(out var action))
+                        {
+                            action();
+                        }
+                        else
+                        {
+                            _newTask.WaitOne();
+                        }
+                    }
+                });
                 _threads[i].Start();
+
+                Interlocked.Increment(ref numberOfWorkingThreads);
             }
         }
         
-        private void ExecuteTasks(CancellationToken cancellationToken)
+        private void EnqueueTask(Action task)
         {
-            while (!cancellationToken.IsCancellationRequested || numberOfTasks > 0)
-            {
-                if (TasksQueued.TryDequeue(out var taskRun))
-                {
-                    Interlocked.Decrement(ref numberOfTasks);
-                    taskRun();
-                }
-                else
-                {
-                    _newTask.WaitOne();
-
-                    if (cancellationToken.IsCancellationRequested || TasksQueued.Count >= 2)
-                    {
-                        _newTask.Set();
-                    }
-                }
-            }
+            TasksQueued.Enqueue(task);
+            _newTask.Set();
         }
+
 
         public IMyTask<TResult> Submit<TResult>(Func<TResult> function)
         {
+            var task = new MyTask<TResult>(function, this);
             lock (lockObject)
             {
-                if (_cancellationTokenSource.IsCancellationRequested) 
-                    throw new OperationCanceledException("ThreadPool is already shut down, sorry(");
                 ArgumentNullException.ThrowIfNull(function);
-                
-                var task = new MyTask<TResult>(function, this);
-                TasksQueued.Enqueue(task.RunTask);
-                _newTask.Set();
-                return task;
+
+                if (!_cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    if (numberOfWorkingThreads != 0)
+                    {
+                        EnqueueTask(task.RunTask);
+                        return task;
+                    }
+                }
             }
+            throw new OperationCanceledException("ThreadPool is already shut down, sorry(");
         }
+        
+        
         
         public void ShutDown()
         {
-            lock (_cancellationTokenSource)
+            lock (lockObject)
             {
                 _cancellationTokenSource.Cancel();
             }
-            foreach (var workingThread in _threads)
+            while (numberOfWorkingThreads != 0)
             {
-                workingThread.Join();
+                _newTask.Set();
+
+                threadStopped.WaitOne();
             }
-            _newTask.Reset();
         }
     }
 }

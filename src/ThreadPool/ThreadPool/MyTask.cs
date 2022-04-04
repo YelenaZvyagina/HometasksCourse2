@@ -10,18 +10,28 @@ namespace ThreadPool
         {
             private readonly MyThreadPool _myThreadPool;
             private readonly CancellationTokenSource _cancellationTokenSource;
-            private readonly Func<TResult> _taskFunction;
+            private Func<TResult> _taskFunction;
             private AutoResetEvent are = new(false);
             private ConcurrentQueue<Action> _continueTasks = new();
             private object _lockObject = new();
+            private readonly ManualResetEvent isCompletedEvent = new(false);
+            private readonly object queueLockObject = new();
+
             public bool IsCompleted {get; set;}
-            public TResult Result {get; set;}
+
+            public TResult Result { 
+                get
+                {
+                    isCompletedEvent.WaitOne();
+                    return Result;
+                }
+                set => Result = value;
+            }
             
             public MyTask(Func<TResult> func, MyThreadPool myThreadPool)
             {
                 _taskFunction = func;
                 _myThreadPool = myThreadPool;
-                _cancellationTokenSource = _myThreadPool._cancellationTokenSource;
             }
             
             public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> function)
@@ -48,7 +58,7 @@ namespace ThreadPool
                 return task;
             }
     
-            public void RunTask()
+            public void RunTask1() 
             {
                 if (IsCompleted) return;
                 try
@@ -68,6 +78,34 @@ namespace ThreadPool
                 catch (Exception e)
                 {
                     throw new AggregateException($"Task failed with an exception {e}");
+                }
+            }
+
+            public void RunTask()
+            {
+                try
+                {
+                    Result = _taskFunction();
+                }
+                catch (Exception exception)
+                {
+                    throw new AggregateException($"Task failed with an exception {exception}");
+                }
+                finally
+                {
+                    _taskFunction = null;
+
+                    lock (queueLockObject)
+                    {
+                        IsCompleted = true;
+                        isCompletedEvent.Set();
+
+                        while (_continueTasks.Count != 0)
+                        {
+                            _continueTasks.TryDequeue(out var taska);
+                            _myThreadPool.EnqueueTask(taska);
+                        }
+                    }
                 }
             }
         }
