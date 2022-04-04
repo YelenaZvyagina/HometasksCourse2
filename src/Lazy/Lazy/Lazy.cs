@@ -23,6 +23,7 @@ public class SingleThreadedLazy<T>: ILazy<T>
         {
             return _result;
         }
+
         _result = _supplier();
         _isCalculated = true;
         _supplier = null;

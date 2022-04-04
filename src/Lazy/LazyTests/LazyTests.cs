@@ -2,6 +2,7 @@ namespace LazyTests;
 
 using System;
 using System.Threading;
+using Lazy;
 using NUnit.Framework;
 
 /// <summary>
