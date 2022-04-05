@@ -1,0 +1,31 @@
+Parallel
+    Measurements on matrix 100x100:
+    Average time: 0.005 seconds, standard deviation: 0.00332 seconds
+
+    Measurements on matrix 600x600:
+    Average time: 0.603 seconds, standard deviation: 0.02551 seconds
+
+    Measurements on matrix 1100x1100:
+    Average time: 3.758 seconds, standard deviation: 0.08047 seconds
+
+    Measurements on matrix 1600x1600:
+    Average time: 14.036 seconds, standard deviation: 0.22365 seconds
+
+    Measurements on matrix 2100x2100:
+    Average time: 29.347 seconds, standard deviation: 0.36204 seconds
+
+Sequential
+    Measurements on matrix 100x100:
+    Average time: 0.021 seconds, standard deviation: 0.01122 seconds
+
+    Measurements on matrix 600x600:
+    Average time: 3.477 seconds, standard deviation: 0.05988 seconds
+
+    Measurements on matrix 1100x1100:
+    Average time: 21.688 seconds, standard deviation: 0.05957 seconds
+
+    Measurements on matrix 1600x1600:
+    Average time: 75.625 seconds, standard deviation: 0.32775 seconds
+
+    Measurements on matrix 2100x2100:
+    Average time: 188.033 seconds, standard deviation: 1.84505 seconds
