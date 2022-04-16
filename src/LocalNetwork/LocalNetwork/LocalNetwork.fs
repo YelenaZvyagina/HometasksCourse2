@@ -14,9 +14,9 @@ type Computer (operatingSystem : OperatingSystem, computerName : string, isInfec
     member val justInfected = false with get, set
     member val infectionChance = 
         match operatingSystem with
-        | Windows -> 0.7
-        | Linux -> 0.3
-        | MacOS -> 0.5
+        | Windows -> 0.9
+        | Linux -> 0.5
+        | MacOS -> 0.6
              
 type localNet (connections : List<string * string>, computers : Computer list, ?rand) =
     member val computers = computers
@@ -30,7 +30,8 @@ type localNet (connections : List<string * string>, computers : Computer list, ?
     member this.Run =
         let shouldBeInfected (c : Computer) =
             let random = this.random
-            c.infectionChance > random.NextDouble() && not c.justInfected
+            let temp = random.NextDouble()
+            c.infectionChance > temp
         
         let isInPair item pair = item = fst pair || item = snd pair
 
@@ -49,12 +50,12 @@ type localNet (connections : List<string * string>, computers : Computer list, ?
             if isInPair c.name connection
             then
                 let connected = getConnected c.name connection
-                if not c.justInfected then infectConnected connected
+                infectConnected connected
     
         let infectAllConnected (comp : Computer) = List.iter(fun connection -> findAndInfectByConnection connection comp) this.connections
 
         let stepOfInfection() =
-            List.iter(fun (comp : Computer) -> if comp.isInfected then infectAllConnected comp) this.computers
+            List.iter(fun (comp : Computer) -> if comp.isInfected && not comp.justInfected then infectAllConnected comp) this.computers
             
         let getPrintString (comp : Computer) =
             let infectState = if comp.isInfected then "infected" else "still standing"
@@ -71,8 +72,8 @@ type localNet (connections : List<string * string>, computers : Computer list, ?
             match this.infectedComputers with
             | 0 -> printfn "Nobody is infected :)"
             | x when x > 0 && x < amountOfComputers ->
-                stepOfInfection()
                 dropJustInfected
+                stepOfInfection()
                 printNetState
                 processNet()
             | amountOfComputers  -> printfn "Everyone is infected no one is safe :("
