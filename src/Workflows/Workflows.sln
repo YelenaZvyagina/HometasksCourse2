@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Workflows", "Workflows\Workflows.fsproj", "{4B2F60DF-4B6D-4E19-A87F-944C17E59811}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WorkflowsTests", "WorkflowsTests\WorkflowsTests.fsproj", "{73A00870-4F91-44FA-88B2-72D76C2F702F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4B2F60DF-4B6D-4E19-A87F-944C17E59811}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B2F60DF-4B6D-4E19-A87F-944C17E59811}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B2F60DF-4B6D-4E19-A87F-944C17E59811}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B2F60DF-4B6D-4E19-A87F-944C17E59811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73A00870-4F91-44FA-88B2-72D76C2F702F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73A00870-4F91-44FA-88B2-72D76C2F702F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73A00870-4F91-44FA-88B2-72D76C2F702F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73A00870-4F91-44FA-88B2-72D76C2F702F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
