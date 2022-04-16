@@ -19,41 +19,39 @@ type Computer (operatingSystem : OperatingSystem, computerName : string, isInfec
         | MacOS -> 0.5
              
 type localNet (connections : List<string * string>, computers : Computer list, ?rand) =
-    
     member val computers = computers
     member val connections = connections
     member val random =
         match rand with
-        | Some value -> value 
+        | Some v -> v 
         | None -> Random()
-    member val infectedComputers = List.fold(fun acc (c : Computer) -> if c.isInfected then acc + 1 else acc ) 0 computers with get, set
+    member val infectedComputers = List.fold(fun amountInfected (c : Computer) -> if c.isInfected then amountInfected + 1 else amountInfected) 0 computers with get, set
     
     member this.Run =
-        
         let shouldBeInfected (c : Computer) =
             let random = this.random
-            let aa = random.NextDouble()
             c.infectionChance > random.NextDouble() && not c.justInfected
         
-        let isInPair (item : 't, pair : 't * 't) = item = fst pair || item = snd pair
+        let isInPair item pair = item = fst pair || item = snd pair
 
-        let getConnected (item : 't, pair : 't * 't) = if item = fst pair then snd pair else fst pair
+        let getConnected item pair =
+            let connectedName = if item = fst pair then snd pair else fst pair
+            ((List.find (fun (c : Computer) -> c.name = string connectedName)) this.computers)
                
-        let infectConnected (connectedName : string) =
-            let connected = ((List.find (fun (c : Computer) -> c.name = connectedName)) this.computers)
+        let infectConnected (connected : Computer) =
             if shouldBeInfected connected && not connected.isInfected
             then
                 this.infectedComputers <- this.infectedComputers + 1
                 connected.justInfected <- true
                 connected.isInfected <- true
             
-        let findAndInfectByConnection (connection : string * string, comp : Computer) = 
-            if isInPair (comp.name, connection)
+        let findAndInfectByConnection connection (c : Computer) = 
+            if isInPair c.name connection
             then
-                let bro = getConnected (comp.name, connection)
-                if not comp.justInfected then infectConnected bro
+                let connected = getConnected c.name connection
+                if not c.justInfected then infectConnected connected
     
-        let infectAllConnected (comp : Computer) = List.iter(fun (connection : string * string) -> findAndInfectByConnection(connection, comp) ) this.connections
+        let infectAllConnected (comp : Computer) = List.iter(fun connection -> findAndInfectByConnection connection comp) this.connections
 
         let stepOfInfection() =
             List.iter(fun (comp : Computer) -> if comp.isInfected then infectAllConnected comp) this.computers
@@ -71,7 +69,7 @@ type localNet (connections : List<string * string>, computers : Computer list, ?
                         
         let rec processNet() =
             match this.infectedComputers with
-            | 0 -> printfn "Everyone gonna stay alive :)"
+            | 0 -> printfn "Nobody is infected :)"
             | x when x > 0 && x < amountOfComputers ->
                 stepOfInfection()
                 dropJustInfected
