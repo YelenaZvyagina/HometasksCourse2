@@ -1,19 +1,74 @@
-using System.Net;
-
 namespace MyFtp;
 
-public class Program
+public static class Program
 {
-    public static async Task Main()
+    public static async Task Main(string[] args)
     {
-        var client = new Client(IPAddress.Parse("127.0.0.1"), 1337);
-        var path = "/home/yelena/study/Hometasks/HometasksCourse2/src/MyFtp/MyFtpTests/TestDirectory";
-        var response = await client.List(path, CancellationToken.None);
-        Console.WriteLine("Client has started");
-        foreach (var (name, isDir) in response)
+        if (args.Length != 4)
         {
-            Console.WriteLine( $"{name}, {isDir}");
+            Console.WriteLine("Arguments expected: request type (1 for list, 2 for get), path, ip, port");
         }
-        Console.WriteLine("Client все");
+        
+        if (!int.TryParse(args[0], out var requestType))
+        {
+            Console.WriteLine($"Incorrect arguments. Request type 1 for List or 2 for Get expected, {args[0]} got");
+        }
+        
+        if (!IPAddress.TryParse(args[2], out var ip))
+        {
+            Console.WriteLine($"Correct ip address expected, {args[2]} got");
+        }
+        
+        if (!int.TryParse(args[3], out var port))
+        {
+            Console.WriteLine($"Correct port number expected, {args[3]} got");
+        }
+        
+        var path = args[1];
+        var cts = new CancellationTokenSource();
+        var client = new Client(ip, port);
+
+        
+        switch (requestType)
+        {
+            case 1:
+                try
+                {
+                    var response = await client.List(path, cts.Token);
+                    foreach (var (name, isDir) in response)
+                    {
+                        Console.WriteLine($"{name}, {isDir}");
+                    }
+                }
+                catch (DirectoryNotFoundException e)
+                {
+                    Console.WriteLine("There is no directory by the path you've specified");
+                }
+                catch (OperationCanceledException e)
+                {
+                    Console.WriteLine("Operation was canceled");
+                }
+                return;
+            
+            case 2:
+                try
+                {
+                    var (size, savedPath) = await client.Get(path, cts.Token);
+                    Console.WriteLine($"File was downloaded to {savedPath}. File size {size}");
+                }
+                catch (FileNotFoundException e)
+                {
+                    Console.WriteLine("There is no file by the path you've specified");
+                }
+                catch (OperationCanceledException e)
+                {
+                    Console.WriteLine("Operation was canceled");
+                }
+                return;
+            
+            default:
+                Console.WriteLine("Request Type can be only 1 for list or 2 for get");
+                return;
+        }
     }
 }

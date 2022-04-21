@@ -2,31 +2,34 @@
 
 namespace MyFtp;
 
-using System.Net;
-using System.Net.Sockets;
-
+/// <summary>
+/// class for processing client. 
+/// </summary>
 public class Client
 {
     private readonly IPAddress _ip;
     private readonly int _port;
-    private readonly TcpClient _client;
-        
+    private readonly TcpClient _client = new();
+    
     public Client(IPAddress ip, int port)
     {
         _ip = ip;
         _port = port;
-        _client = new TcpClient();
     }
 
-    public async Task<List<(string name, bool isDir)>> List(string path, CancellationToken token)
+    /// <summary>
+    /// Returns list of files and directories on server by given path and specifies is it a directory
+    /// </summary>
+    public async Task<List<(string name, bool isDir)>> List(string pathToDirectory, CancellationToken token)
     {
         await _client.ConnectAsync(_ip.ToString(), _port, token);
         await using var stream = _client.GetStream();
         await using var writer = new StreamWriter(stream) {AutoFlush = true};
         using var reader = new StreamReader(stream);
-        await writer.WriteLineAsync($"1 {path} \n");
+        await writer.WriteLineAsync($"1 {pathToDirectory} \n");
         var data = await reader.ReadLineAsync();
         var splitted = data.Split(' ');
+        
         if (!int.TryParse(splitted[0], out var size))
         {
             throw new ArgumentException("Server's response was incorrect, amount of directory's content expected");
@@ -35,7 +38,8 @@ public class Client
         {
             throw new DirectoryNotFoundException();
         }
-        var resultList = new List<(string name, bool isDir)>();
+
+        var result = new List<(string name, bool isDir)>();
         for (var i = 1; i < size * 2; i += 2)
         {
             if (!token.IsCancellationRequested)
@@ -46,21 +50,29 @@ public class Client
                     throw new ArgumentException
                         ("Wrong format of received data. Boolean value is it a directory expected ");
                 }
-                resultList.Add((directoryName, isDir));
-            };
+                result.Add((directoryName, isDir));
+            }
+            else
+            {
+                break;
+            }
         }
-        return resultList;
+        return result;
     }
 
-    public async Task<long> Get(string pathToFile, CancellationToken token)
+    /// <summary>
+    /// Downloads file from server
+    /// </summary>
+    public async Task<(long, string)> Get(string pathToFileOnServer, CancellationToken token)
     {
         await _client.ConnectAsync(_ip.ToString(), _port, token);
         await using var stream = _client.GetStream();
         await using var writer = new StreamWriter(stream) {AutoFlush = true};
         using var reader = new StreamReader(stream);
-        await writer.WriteLineAsync($"2 {pathToFile} \n");
+        await writer.WriteLineAsync($"2 {pathToFileOnServer} \n");
         var data = await reader.ReadLineAsync();
         var splitted = data.Split(' ');
+        
         if (data == "-1")
         {
             throw new FileNotFoundException();
@@ -69,8 +81,10 @@ public class Client
         {
             throw new ArgumentException("Server's response was incorrect, size of file expected");
         }
-        await using var fileStream = File.Create(pathToFile);
-        await stream.CopyToAsync(stream, token);
-        return size;
+
+        var pathToSave = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"..\..\..\..\DownloadedFiles\{Path.GetFileName(pathToFileOnServer)}");
+        await using var fileStream = File.Create(pathToSave);
+        await stream.CopyToAsync(fileStream, token);
+        return (size, pathToSave);
     }
 }

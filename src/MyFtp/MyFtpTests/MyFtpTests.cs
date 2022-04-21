@@ -14,6 +14,8 @@ public class Tests
     private Server _server;
     private Client _client;
 
+    private const string TestDirectoryPath = "../../../TestDirectory";
+
     [SetUp]
     public void Setup()
     {
@@ -21,7 +23,7 @@ public class Tests
         _client = new Client(IPAddress.Parse("127.0.0.1"), 1337);
         _server.RunServer();
     }
-
+    
     [TearDown]
     public void TearDown()
     {
@@ -32,7 +34,7 @@ public class Tests
     public async Task ListTest()
     {
         var expected = new List<(string name, bool isDir)>{ ("Directory1", true), ("test2.txt", false), ("test3.txt", false), ("test1.txt", false) };
-        var actual  = await _client.List("/home/yelena/study/Hometasks/HometasksCourse2/src/MyFtp/MyFtpTests/TestDirectory", CancellationToken.None);
+        var actual  = await _client.List(TestDirectoryPath, new CancellationToken());
         Assert.AreEqual(expected, actual);
     }
     
@@ -52,5 +54,24 @@ public class Tests
         {
             await _client.Get("notFileAtAll", CancellationToken.None);
         });
+    }
+
+    [Test]
+    public void CancelTest()
+    {
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+        Assert.ThrowsAsync<TaskCanceledException>(async Task() =>
+        {
+            await _client.Get(TestDirectoryPath, cts.Token);
+        });
+    }
+
+    [Test]
+    public async Task GetTest()
+    {
+        var expected = 77;
+        var actual = await _client.Get(Path.Combine(TestDirectoryPath, "test1.txt"), CancellationToken.None);
+        Assert.AreEqual(expected, actual.Item1);
     }
 }

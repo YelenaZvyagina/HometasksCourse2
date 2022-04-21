@@ -6,4 +6,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Using Include="System.Net" />
+        <Using Include="System.Net.Sockets" />
+    </ItemGroup>
+
 </Project>

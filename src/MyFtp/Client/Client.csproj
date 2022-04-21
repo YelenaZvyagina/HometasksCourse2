@@ -7,4 +7,9 @@
         <OutputType>Exe</OutputType>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Using Include="System.Net" />
+        <Using Include="System.Net.Sockets" />
+    </ItemGroup>
+
 </Project>

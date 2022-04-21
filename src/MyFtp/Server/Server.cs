@@ -1,7 +1,8 @@
 namespace MyFtp;
-using System.Net;
-using System.Net.Sockets;
 
+/// <summary>
+/// Class for processing Server
+/// </summary>
 public class Server
 {
     private readonly TcpListener _server;
@@ -31,6 +32,9 @@ public class Server
         _cancellationTokenSource.Cancel();
     }
 
+    /// <summary>
+    /// Method for processing requests from clients
+    /// </summary>
     private static async Task ClientProcess(TcpClient client)
     {
         await using var stream = client.GetStream();
@@ -51,6 +55,9 @@ public class Server
         }
     }
 
+    /// <summary>
+    /// Returns directories and files list on the server to client
+    /// </summary>
     private static async Task List(string path, StreamWriter writer)
     {
         var directory = new DirectoryInfo(path);
@@ -67,6 +74,9 @@ public class Server
         }
     }
 
+    /// <summary>
+    /// Downloads the file from server
+    /// </summary>
     private static async Task Get(string pathToFile, StreamWriter writer)
     {
         var file = new FileInfo(pathToFile);
