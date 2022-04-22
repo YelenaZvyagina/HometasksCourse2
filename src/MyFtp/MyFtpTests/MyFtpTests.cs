@@ -47,7 +47,7 @@ public class Tests
         });
     }
 
-    [Test]
+     [Test]
     public void FileDoesntExistTest()
     {
         Assert.ThrowsAsync<FileNotFoundException>(async Task() =>

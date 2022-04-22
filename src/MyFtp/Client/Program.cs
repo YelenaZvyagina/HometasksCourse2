@@ -40,11 +40,11 @@ public static class Program
                         Console.WriteLine($"{name}, {isDir}");
                     }
                 }
-                catch (DirectoryNotFoundException e)
+                catch (DirectoryNotFoundException)
                 {
                     Console.WriteLine("There is no directory by the path you've specified");
                 }
-                catch (OperationCanceledException e)
+                catch (OperationCanceledException)
                 {
                     Console.WriteLine("Operation was canceled");
                 }
@@ -56,11 +56,11 @@ public static class Program
                     var (size, savedPath) = await client.Get(path, cts.Token);
                     Console.WriteLine($"File was downloaded to {savedPath}. File size {size}");
                 }
-                catch (FileNotFoundException e)
+                catch (FileNotFoundException)
                 {
                     Console.WriteLine("There is no file by the path you've specified");
                 }
-                catch (OperationCanceledException e)
+                catch (OperationCanceledException)
                 {
                     Console.WriteLine("Operation was canceled");
                 }
