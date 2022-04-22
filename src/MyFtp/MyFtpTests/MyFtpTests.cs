@@ -24,13 +24,13 @@ public class Tests
         _server.RunServer();
     }
     
-    [TearDown]
+    [OneTimeTearDown]
     public void TearDown()
     {
         _server.StopServer();
     }
     
-    //   [Test]
+    [Test]
     public async Task ListTest()
     {
         var expected = new List<(string name, bool isDir)>{("test3.txt", false), ("test2.txt", false), ("test1.txt", false), ("Directory1", true)};
@@ -38,7 +38,7 @@ public class Tests
         Assert.AreEqual(expected, actual);
     }
     
-    //  [Test]
+    [Test]
     public void DirectoryDoesntExistTest()
     {
         Assert.ThrowsAsync<DirectoryNotFoundException>(async Task () =>
@@ -56,7 +56,7 @@ public class Tests
         });
     }
 
-   // [Test]
+    [Test]
     public void CancelTest()
     {
         var cts = new CancellationTokenSource();
@@ -67,7 +67,7 @@ public class Tests
         });
     }
 
-  //  [Test]
+    [Test]
     public async Task GetTest()
     {
         var expected = 77;
