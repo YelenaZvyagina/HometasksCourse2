@@ -36,7 +36,7 @@ public class Tests
     {
         var expected = new List<(string name, bool isDir)>{("test3.txt", false), ("test2.txt", false), ("test1.txt", false)};
         var actual  = await _client.List(TestDirectoryPath, new CancellationToken());
-        Assert.IsTrue(expected.Except(actual).Any());
+        Assert.IsFalse(expected.Except(actual).Any());
     }
     
     [Test]
