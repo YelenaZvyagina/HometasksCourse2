@@ -33,7 +33,7 @@ public class Tests
     [Test]
     public async Task ListTest()
     {
-        var expected = new List<(string name, bool isDir)>{ ("Directory1", true), ("test2.txt", false), ("test3.txt", false), ("test1.txt", false) };
+        var expected = new List<(string name, bool isDir)>{("test3.txt", false), ("test2.txt", false), ("test1.txt", false), ("Directory1", true)};
         var actual  = await _client.List(TestDirectoryPath, new CancellationToken());
         Assert.AreEqual(expected, actual);
     }
