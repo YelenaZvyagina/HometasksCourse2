@@ -34,9 +34,9 @@ public class Tests
     [Test]
     public async Task ListTest()
     {
-        var expected = new List<(string name, bool isDir)>{("test3.txt", false), ("test2.txt", false), ("test1.txt", false), ("Directory1", true)};
+        var expected = new List<(string name, bool isDir)>{("test3.txt", false), ("test2.txt", false), ("test1.txt", false)};
         var actual  = await _client.List(TestDirectoryPath, new CancellationToken());
-        Assert.IsFalse(expected.Except(actual).Any());
+        Assert.IsTrue(expected.Except(actual).Any());
     }
     
     [Test]
