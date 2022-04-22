@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ public class Tests
     {
         var expected = new List<(string name, bool isDir)>{("test3.txt", false), ("test2.txt", false), ("test1.txt", false), ("Directory1", true)};
         var actual  = await _client.List(TestDirectoryPath, new CancellationToken());
-        Assert.AreEqual(expected, actual);
+        Assert.IsFalse(expected.Except(actual).Any());
     }
     
     [Test]
