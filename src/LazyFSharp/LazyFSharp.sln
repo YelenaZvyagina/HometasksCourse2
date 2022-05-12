@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "LazyFSharp", "LazyFSharp\LazyFSharp.fsproj", "{C1B2A11D-2FF7-4726-B641-A09B93D44A8A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "LazyFsharpTests", "LazyFsharpTests\LazyFsharpTests.fsproj", "{02D8A354-7AD5-4F15-8E5B-FD851AE356BD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1B2A11D-2FF7-4726-B641-A09B93D44A8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1B2A11D-2FF7-4726-B641-A09B93D44A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1B2A11D-2FF7-4726-B641-A09B93D44A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1B2A11D-2FF7-4726-B641-A09B93D44A8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02D8A354-7AD5-4F15-8E5B-FD851AE356BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02D8A354-7AD5-4F15-8E5B-FD851AE356BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02D8A354-7AD5-4F15-8E5B-FD851AE356BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02D8A354-7AD5-4F15-8E5B-FD851AE356BD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

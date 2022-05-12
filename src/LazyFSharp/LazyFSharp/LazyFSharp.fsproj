@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="ILazy.fs" />
+        <Compile Include="Lazy.fs" />
+        <Compile Include="LazyConcurrent.fs" />
+        <Compile Include="LazyLockFree.fs" />
+        <Compile Include="LazyFactory.fs" />
+    </ItemGroup>
+
+</Project>
