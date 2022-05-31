@@ -1,5 +1,6 @@
 module WorkflowsTests
 
+open System
 open NUnit.Framework
 open Workflows
 
@@ -15,6 +16,17 @@ let testForRounding () =
      Assert.AreEqual(result, 0.048)
 
 [<Test>]
+let testForNegativeRounding () =
+    Assert.Throws<ArgumentOutOfRangeException>( fun () ->
+         let rounding = ComputingWithAccuracyBuilder(-3)
+         rounding {
+            let! a = 2.0 / 12.0
+            let! b = 3.5
+            return a / b
+         } |> ignore
+    ) |> ignore
+        
+[<Test>]
 let testForCorrectStrings () =
     let calculate = StringComputingBuilder()   
     let result = calculate {
@@ -24,7 +36,6 @@ let testForCorrectStrings () =
         return z
     }
     Assert.AreEqual(result, Some(3))
-
 
 [<Test>]
 let testForIncorrectStrings () =
