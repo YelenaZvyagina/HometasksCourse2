@@ -1,11 +1,9 @@
 module Hometask2.Tasks
 
-open System
-
 // Functions that calculate the amount of even numbers in the list using map, fold and filter system functions for lists
-let calculateEvenMap list = list |> List.map (fun x -> abs (x+1) % 2) |> List.sum 
+let calculateEvenMap list = list |> List.map (fun x -> abs (x + 1) % 2) |> List.sum 
 let calculateEvenFilter list = list |> List.filter (fun x -> x % 2 = 0) |> List.length
-let calculateEvenFold list = List.fold (fun acc elem -> acc + (elem+1) % 2 ) 0 list
+let calculateEvenFold list = List.fold (fun acc elem -> acc + (elem + 1) % 2 ) 0 list
 
 type BinaryTree<'t> =
     | None
@@ -27,23 +25,22 @@ type ArithmeticTree<'t> =
     | Node of ArithmeticTree<'t> * ArithmeticExpression<'t> * ArithmeticTree<'t>
       
 // Function that calculates the result of arithmetic expression, represented as a tree
-let calculateArithmeticTree tree =
-    let rec inner tree acc =
-        match tree with
-        | Leaf value -> acc + value
-        | Node (operand1, expression, operand2) ->
-            match expression with
-            | Sum -> acc + inner operand1 acc + inner operand2 acc
-            | Subtraction -> acc + inner operand1 acc - inner operand2 acc
-            | Division -> acc + inner operand1 acc / inner operand2 acc
-            | Multiplication -> acc + inner operand1 acc * inner operand2 acc
-    inner tree 0 
+let rec calculateArithmeticTree tree =
+    match tree with
+    | Leaf value -> value
+    | Node (operand1, expression, operand2) ->
+        let part1 = calculateArithmeticTree operand1
+        let part2 = calculateArithmeticTree operand2
+        match expression with
+        | Sum -> part1 + part2
+        | Subtraction -> part1 - part2
+        | Division -> part1 / part2
+        | Multiplication -> part1 * part2
    
 let isPrime number =
     match number with
     | _ -> seq {2 .. int(sqrt(float number))}
-    |> Seq.exists (fun x -> (number % x = int(0)))
-    |> not
+    |> Seq.forall (fun x -> (number % x <> 0))
    
 // Generates infinite sequence of prime numbers        
 let generatePrimes = Seq.initInfinite (fun i -> i + 1) |> Seq.filter isPrime
