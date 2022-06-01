@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Parenthesis", "Parenthesis\Parenthesis.fsproj", "{FD62F3D5-B755-4C5C-AF1D-7F242A6D6410}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ParenthesisTests", "ParenthesisTests\ParenthesisTests.fsproj", "{92046427-D20F-4902-9EFD-532B6F7C3A79}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FD62F3D5-B755-4C5C-AF1D-7F242A6D6410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD62F3D5-B755-4C5C-AF1D-7F242A6D6410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD62F3D5-B755-4C5C-AF1D-7F242A6D6410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD62F3D5-B755-4C5C-AF1D-7F242A6D6410}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92046427-D20F-4902-9EFD-532B6F7C3A79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92046427-D20F-4902-9EFD-532B6F7C3A79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92046427-D20F-4902-9EFD-532B6F7C3A79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92046427-D20F-4902-9EFD-532B6F7C3A79}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
