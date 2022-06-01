@@ -1,23 +1,17 @@
 module MiniCrawlerTests
 
-open System.Net.Http
 open NUnit.Framework
 open MiniCrawler.Crawler
+open FsUnit
 
-    
 [<Test>]
 let extractedLinksTest () =
-     let client = new HttpClient()
-     let actual = fetchAsync "https://www.thecatsmeow.com/" client |> Async.RunSynchronously |> extractLinks 
-     let expected = ["https://www.thecatsmeow.com/"; "https://www.thecatsmeow.com/"; "https://www.thecatsmeow.com/blog/"; 
-                     "https://www.thecatsmeow.com/sell-with-us"; "https://www.thecatsmeow.com/about-us"; "https://www.thecatsmeow.com/contact"]
-     Assert.AreEqual (expected, actual)
-     let size = getSize actual.Head client
-     Assert.AreEqual (size, 44298)
-    
+    let expected = [("https://www.thecatsmeow.com/", Some(44298)); ("https://www.thecatsmeow.com/", Some(44298)); ("https://www.thecatsmeow.com/blog/", Some(86401)); 
+                 ("https://www.thecatsmeow.com/sell-with-us", Some(18382)); ("https://www.thecatsmeow.com/about-us", Some(19077)); ("https://www.thecatsmeow.com/contact", Some(25087))]
+    let result = crawl "https://www.thecatsmeow.com/" |> Async.RunSynchronously
+    result |> should equal expected
 
 [<Test>]
 let noLinksTest () =
-    let client = new HttpClient()
-    let actual = fetchAsync "http://info.cern.ch/hypertext/WWW/TheProject.html" client |> Async.RunSynchronously |> extractLinks  
-    Assert.AreEqual (0, actual.Length)
+    let result = crawl "http://info.cern.ch/hypertext/WWW/TheProject.html" |> Async.RunSynchronously
+    result |> should equal [] 
