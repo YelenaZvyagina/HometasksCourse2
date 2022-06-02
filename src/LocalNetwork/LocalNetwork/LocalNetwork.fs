@@ -1,82 +1,61 @@
 module LocalNetwork.LocalNetwork
 
-open System
+open System.Collections.Generic
 
-type OperatingSystem =
+type OS =
     | Windows
     | Linux
     | MacOS
     
-type Computer (operatingSystem : OperatingSystem, computerName : string, isInfected : bool) = 
+type Computer (operatingSystem : OS, computerName : string, number : int) = 
     member val name = computerName
-    member val os = operatingSystem 
-    member val isInfected = isInfected with get, set
-    member val justInfected = false with get, set
-    member val infectionChance = 
-        match operatingSystem with
-        | Windows -> 0.7
-        | Linux -> 0.3
-        | MacOS -> 0.5
-             
-type localNet (connections : List<string * string>, computers : Computer list, ?rand) =
+    member val number = number
+    member val os = operatingSystem
     
-    member val computers = computers
-    member val connections = connections
-    member val random =
-        match rand with
-        | Some value -> value 
-        | None -> Random()
-    member val infectedComputers = List.fold(fun acc (c : Computer) -> if c.isInfected then acc + 1 else acc ) 0 computers with get, set
-    
-    member this.Run =
-        
-        let shouldBeInfected (c : Computer) =
-            let random = this.random
-            let aa = random.NextDouble()
-            c.infectionChance > random.NextDouble() && not c.justInfected
-        
-        let isInPair (item : 't, pair : 't * 't) = item = fst pair || item = snd pair
+let mutable connections = Array2D.zeroCreate 0 0
+let mutable computers = Array.empty
 
-        let getConnected (item : 't, pair : 't * 't) = if item = fst pair then snd pair else fst pair
-               
-        let infectConnected (connectedName : string) =
-            let connected = ((List.find (fun (c : Computer) -> c.name = connectedName)) this.computers)
-            if shouldBeInfected connected && not connected.isInfected
-            then
-                this.infectedComputers <- this.infectedComputers + 1
-                connected.justInfected <- true
-                connected.isInfected <- true
-            
-        let findAndInfectByConnection (connection : string * string, comp : Computer) = 
-            if isInPair (comp.name, connection)
-            then
-                let bro = getConnected (comp.name, connection)
-                if not comp.justInfected then infectConnected bro
-    
-        let infectAllConnected (comp : Computer) = List.iter(fun (connection : string * string) -> findAndInfectByConnection(connection, comp) ) this.connections
+type Virus(firstInfected: Computer[], infectionChance: OS -> float, random: unit -> float) =
+    let infectedComputers = HashSet(firstInfected)
 
-        let stepOfInfection() =
-            List.iter(fun (comp : Computer) -> if comp.isInfected then infectAllConnected comp) this.computers
-            
-        let getPrintString (comp : Computer) =
-            let infectState = if comp.isInfected then "infected" else "still standing"
-            $"Computer {comp.name} is {infectState}"
-            
-        let printNetState =
-            List.iter(fun (comp : Computer) -> printfn $"{getPrintString comp}") this.computers
+    let getNeighbours (computer : Computer) =
+        let neighbours = HashSet()
+        connections[computer.number, *]
+        |> Array.iteri (fun i elem -> if elem then neighbours.Add computers[i] |> ignore)
+        neighbours
+    
+    let calculateInfectionCandidates lastInfected =
+        lastInfected
+        |> Seq.map getNeighbours
+        |> Seq.concat
+        |> Seq.distinct
+        |> Seq.filter (not << infectedComputers.Contains)
+        |> Seq.filter (fun x -> infectionChance x.os > 0)
+
+    let mutable infectionCandidates = calculateInfectionCandidates infectedComputers
+
+    member x.InfectedComputers = infectedComputers
+
+    member x.AbleToInfect = not (Seq.isEmpty infectionCandidates)
+
+    member x.SpreadInfection() =
+        let newInfected = List()
+
+        for computer in infectionCandidates do
+            if random() < infectionChance computer.os then
+                newInfected.Add(computer)
+
+        infectedComputers.UnionWith(newInfected)
+        infectionCandidates <- calculateInfectionCandidates newInfected
+
+type PlagueInc(viruses: Virus[], computersList : Computer[], connectionsMatrix : bool[,]) =
+    let rec play viruses = 
+        let viruses = viruses |> Seq.filter (fun (v: Virus) -> v.AbleToInfect)
+        if Seq.isEmpty viruses then () else
+        for virus in viruses do virus.SpreadInfection()
+        play viruses
         
-        let amountOfComputers = computers.Length
-        
-        let dropJustInfected = List.iter(fun (comp : Computer) -> comp.justInfected <- false) this.computers
-                        
-        let rec processNet() =
-            match this.infectedComputers with
-            | 0 -> printfn "Everyone gonna stay alive :)"
-            | x when x > 0 && x < amountOfComputers ->
-                stepOfInfection()
-                dropJustInfected
-                printNetState
-                processNet()
-            | amountOfComputers  -> printfn "Everyone is infected no one is safe :("
-                
-        processNet()
+    member x.Play() =
+        connections <- connectionsMatrix
+        computers <- computersList
+        play viruses
