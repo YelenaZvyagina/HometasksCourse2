@@ -2,31 +2,24 @@ module LocalNetworkTests
 
 open LocalNetwork.LocalNetwork
 open NUnit.Framework
-open Foq
+open FsUnit
 
 [<Test>]
 let EverybodyInfects() =
-    let computers1416 = [Computer(Linux, "Na$ty@_D@ngerous", true); Computer(Windows, "Hannuken", false); Computer(MacOS, "OneLegPirat", true)]
-    let connections = [("Na$ty@_D@ngerous", "Hannuken"); ("Hannuken", "OneLegPirat")]
-    let myNet = localNet(connections, computers1416)
-    myNet.Run 
-    Assert.AreEqual(3, myNet.infectedComputers)
+    let computers = [| Computer(Linux, "aa", 1); Computer(MacOS, "bb", 2); Computer(Windows, "сс", 0) |]
+    let viruses = [| Virus([| computers[1] |], (function  _ -> 0.8), (fun () -> 0.5)) |]
+    let connectionMatrix = Array2D.create 3 3 true
+    let net = PlagueInc(viruses, computers, connectionMatrix)
+    net.Play()
+    viruses[0].InfectedComputers.Count |> should equal 3
+
     
 [<Test>]    
 let NobodyInfects() =
-    let computers1416 = [Computer(Linux, "Na$ty@_D@ngerous", false); Computer(Windows, "Hannuken", false); Computer(MacOS, "OneLegPirat", false)]
-    let connections = [("Na$ty@_D@ngerous", "Hannuken"); ("Hannuken", "OneLegPirat")]
-    let myNet = localNet(connections, computers1416)
-    myNet.Run 
-    Assert.AreEqual(0, myNet.infectedComputers)
- 
-[<Test>]
-let FoqTest() =
-    let rand = Mock<System.Random>().Setup(fun x -> <@ x.NextDouble() @>).Returns(0.5).Create()
-    let computers1416 = [Computer(Linux, "Na$ty@_D@ngerous", true); Computer(Windows, "Hannuken", false); Computer(MacOS, "OneLegPirat", true)]
-    let connections = [("Na$ty@_D@ngerous", "Hannuken"); ("Hannuken", "OneLegPirat")]
-    let myNet = localNet(connections, computers1416, rand)
-    myNet.Run 
-    Assert.AreEqual(3, myNet.infectedComputers) 
+    let computers = [| Computer(Linux, "aa", 1); Computer(MacOS, "bb", 2); Computer(Windows, "сс", 0) |]
+    let viruses = [| Virus([| computers[1] |], (function  _ -> 0.0), (fun () -> 1.0)) |]
+    let connectionMatrix = Array2D.create 3 3 true
+    let net = PlagueInc(viruses, computers, connectionMatrix)
+    net.Play()
+    viruses[0].InfectedComputers.Count |> should equal 1
     
-
