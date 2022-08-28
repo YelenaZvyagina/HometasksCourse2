@@ -1,8 +1,8 @@
 ﻿namespace MyNUnit;
 
-using System;
-using System.IO;
-
+/// <summary>
+/// 
+/// </summary>
 internal static class Program
 {
     public static void Main(string[] args)

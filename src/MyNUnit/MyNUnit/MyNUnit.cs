@@ -1,13 +1,10 @@
-﻿namespace MyNUnit;
-    
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using SearchOption = System.IO.SearchOption;
-    
+﻿using System.Reflection;
+
+namespace MyNUnit;
+
+/// <summary>
+/// Simple utility for launching custom tests
+/// </summary>
 public class MyNUnit
 {
     private static IEnumerable<Assembly> GetAssemblies(string path)
@@ -16,6 +13,9 @@ public class MyNUnit
         return paths.Select(Assembly.LoadFrom).ToList();
     }
     
+    /// <summary>
+    /// Runs all tests in specified directory
+    /// </summary>
     public void RunAllByThePath(string path)
     {
         var types = GetAssemblies(path).SelectMany(a => a.GetTypes()).ToList();
@@ -24,10 +24,10 @@ public class MyNUnit
             Console.WriteLine("There are no assemblies to run in this search path");
             return;
         }
-        Parallel.ForEach(types, RunMethodsInOneCLass);
+        Parallel.ForEach(types, RunMethodsInOneClass);
     }
 
-    private static void RunMethodsInOneCLass(Type type)
+    private static void RunMethodsInOneClass(Type type)
     {
         MyTestClass myTestClass = new(type);
         myTestClass.RunTestClass();

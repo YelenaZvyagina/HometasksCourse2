@@ -1,7 +1,7 @@
-﻿namespace ProjectForTests1;
-
-using System;
+﻿using System;
 using MyNUnit;
+
+namespace ProjectForCustomTests;
 
 public class IgnoredAndExpectedTests
 {

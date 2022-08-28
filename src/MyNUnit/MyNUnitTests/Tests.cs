@@ -1,3 +1,5 @@
+using ProjectForCustomTests;
+
 namespace MyNUnitTests;
 
 using NUnit.Framework;
@@ -16,15 +18,15 @@ public class Tests
     [Test]
     public void TestForMethodsOrder()
     {
-        var resultingCount = ProjectForTests1.TestClass.Count;
+        var resultingCount = TestClass.Count;
         Assert.AreEqual(21, resultingCount);
     }
 
     [Test]
     public void TestsCancellingAfterOneOfThemFailed()
     {
-        var countFromCanceled = ProjectForTests1.CanceledTests.Count;
-        Assert.IsFalse(countFromCanceled == 0);
+        var countFromCanceled = CanceledTests.Count;
+        Assert.IsTrue(countFromCanceled == 0);
     }
 }
 

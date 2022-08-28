@@ -1,7 +1,6 @@
-﻿namespace ProjectForTests1;
+﻿using MyNUnit;
 
-using MyNUnit;
-
+namespace ProjectForCustomTests;
 
 public class CanceledTests
 {
@@ -10,7 +9,7 @@ public class CanceledTests
     [Test]
     public void CorrectMethod1() => Count += 10;
 
-    [Test]
+    [Before]
     public void IncorrectMethod() => Count /= 0;
         
     [After]
@@ -21,5 +20,4 @@ public class CanceledTests
 
     [Test]
     public void CorrectMethod3() => Count += 55;
-
 }

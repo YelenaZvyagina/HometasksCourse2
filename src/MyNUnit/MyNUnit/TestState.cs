@@ -1,7 +1,8 @@
 ﻿namespace MyNUnit;
 
-using System;
-
+/// <summary>
+/// Determines state of launched test
+/// </summary>
 public readonly struct TestState
 {
     private readonly TestResult _result;
@@ -54,12 +55,4 @@ public readonly struct TestState
             }
         }
     }
-}
-
-public enum TestResult
-{
-    Success,
-    Canceled,
-    Failed,
-    Ignored
 }

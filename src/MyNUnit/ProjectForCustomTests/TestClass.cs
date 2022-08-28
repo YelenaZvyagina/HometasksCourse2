@@ -1,6 +1,6 @@
-﻿namespace ProjectForTests1;
+﻿using MyNUnit;
 
-using MyNUnit;
+namespace ProjectForCustomTests;
 
 public class TestClass
 {

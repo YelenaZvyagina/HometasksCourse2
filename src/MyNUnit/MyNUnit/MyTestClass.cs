@@ -1,13 +1,11 @@
-﻿namespace MyNUnit;
-
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
-using System.Threading.Tasks;
 
+namespace MyNUnit;
 
+/// <summary>
+/// Processes custom tests from one testclass
+/// </summary>
 public class MyTestClass
 {
     private readonly IEnumerable<MethodInfo> _testMethods;
@@ -20,50 +18,56 @@ public class MyTestClass
 
     public MyTestClass(Type type)
     {
-        _testMethods = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(Test), false).Length > 0 && IsMethodOk(m, false)); 
-        _afterMethods = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(After), false).Length > 0 && IsMethodOk(m, false));
-        _beforeMethods = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(Before), false).Length > 0 && IsMethodOk(m, false));
-        _afterClassMethods = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(AfterClass), false).Length > 0 && IsMethodOk(m, true));
-        _beforeClassMethods = type.GetMethods().Where(m => m.GetCustomAttributes(typeof(BeforeClass), false).Length > 0 && IsMethodOk(m, true));
+        _testMethods = type.GetMethods()
+            .Where(m => m.GetCustomAttributes(typeof(Test), false).Length > 0 && IsMethodOk(m, false));
+        _afterMethods = type.GetMethods()
+            .Where(m => m.GetCustomAttributes(typeof(After), false).Length > 0 && IsMethodOk(m, false));
+        _beforeMethods = type.GetMethods()
+            .Where(m => m.GetCustomAttributes(typeof(Before), false).Length > 0 && IsMethodOk(m, false));
+        _afterClassMethods = type.GetMethods().Where(m =>
+            m.GetCustomAttributes(typeof(AfterClass), false).Length > 0 && IsMethodOk(m, true));
+        _beforeClassMethods = type.GetMethods().Where(m =>
+            m.GetCustomAttributes(typeof(BeforeClass), false).Length > 0 && IsMethodOk(m, true));
     }
 
-    private static bool IsMethodOk (MethodInfo methodInfo, bool shouldBeStatic)
+    private static bool IsMethodOk(MethodInfo methodInfo, bool shouldBeStatic)
     {
         var isVoidAndParameterless = methodInfo.ReturnType == typeof(void) && methodInfo.GetParameters().Length == 0;
-        if (shouldBeStatic)
-        {
-            return isVoidAndParameterless && methodInfo.IsStatic;
-        }
+        if (shouldBeStatic) return isVoidAndParameterless && methodInfo.IsStatic;
         return isVoidAndParameterless && !methodInfo.IsStatic;
     }
-    
+
+    /// <summary>
+    /// Runs all methods in this testclass
+    /// </summary>
     public void RunTestClass()
-    { 
-        Parallel.ForEach(_beforeClassMethods, CheckAndExecute);
+    {
+        foreach (var beforeClassMethod in _beforeClassMethods) CheckAndExecute(beforeClassMethod);
         Parallel.ForEach(_testMethods, RunTestMethod);
-        Parallel.ForEach(_afterClassMethods, CheckAndExecute);
+        foreach (var afterClassMethod in _afterClassMethods) CheckAndExecute(afterClassMethod);
     }
-    
+
     private void RunTestMethod(MethodInfo method)
     {
         Parallel.ForEach(_beforeMethods, CheckAndExecute);
         CheckAndExecute(method);
         Parallel.ForEach(_afterMethods, CheckAndExecute);
     }
-    
+
     private void CheckAndExecute(MethodInfo method)
     {
-        bool isTest = false;
+        var isTest = false;
         var attribute = method.GetCustomAttribute<Test>();
         if (attribute != null)
         {
             isTest = true;
             if (attribute.Ignore != null)
-            { 
-                _testStates.Add(new TestState(method.Name, attribute.Ignore)); 
+            {
+                _testStates.Add(new TestState(method.Name, attribute.Ignore));
                 return;
             }
         }
+
         if (_needsToStop)
         {
             _testStates.Add(new TestState($"Test {method.Name} was canceled", TestResult.Canceled, method.Name, 0));
@@ -77,6 +81,12 @@ public class MyTestClass
                 method.Invoke(obj, null);
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
+
+                if (attribute != null && attribute.Expected != null)
+                {
+                    _testStates.Add(new TestState($"Expected {attribute.Expected} exception", TestResult.Failed, method.Name, elapsedMs));
+                }
+                
                 _testStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs));
             }
             catch (Exception exception)
@@ -86,24 +96,22 @@ public class MyTestClass
                 if (isTest)
                 {
                     if (attribute != null && attribute.Expected == exception.GetType())
-                    {
-                        _testStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs ));
-                    }
+                        _testStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs));
                 }
                 else
                 {
-                   _needsToStop = true;
-                    _testStates.Add(new TestState(exception.Message, TestResult.Failed, method.Name, elapsedMs)); 
+                    _needsToStop = true;
+                    _testStates.Add(new TestState(exception.Message, TestResult.Failed, method.Name, elapsedMs));
                 }
             }
         }
     }
 
+    /// <summary>
+    /// prints report about all runned tests in this testclass
+    /// </summary>
     public void PrintReport()
     {
-        foreach (var test in _testStates)
-        {
-            test.PrintTestState();
-        }
+        foreach (var test in _testStates) test.PrintTestState();
     }
 }
