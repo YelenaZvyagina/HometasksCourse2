@@ -45,6 +45,7 @@ public class MyTestClass
         foreach (var beforeClassMethod in _beforeClassMethods) CheckAndExecute(beforeClassMethod);
         Parallel.ForEach(_testMethods, RunTestMethod);
         foreach (var afterClassMethod in _afterClassMethods) CheckAndExecute(afterClassMethod);
+        foreach (var test in _testStates) test.PrintTestState();
     }
 
     private void RunTestMethod(MethodInfo method)
@@ -84,6 +85,7 @@ public class MyTestClass
 
                 if (attribute != null && attribute.Expected != null)
                 {
+                    _needsToStop = true;
                     _testStates.Add(new TestState($"Expected {attribute.Expected} exception", TestResult.Failed, method.Name, elapsedMs));
                 }
                 

@@ -1,7 +1,7 @@
 ﻿namespace MyNUnit;
 
 /// <summary>
-/// Determines state of launched test
+/// Determines state and properties of test
 /// </summary>
 public readonly struct TestState
 {
@@ -29,6 +29,9 @@ public readonly struct TestState
         _ignoreReason = "";
     }
 
+    /// <summary>
+    /// Prints result of test execution
+    /// </summary>
     public void PrintTestState()
     {
         switch (_result)

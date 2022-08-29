@@ -7,7 +7,7 @@ using NUnit.Framework;
 public class Tests
 {
     private readonly MyNUnit.MyNUnit _myNUnit = new();
-    private const string PathForTestProject = "../../../../ProjectForTests1";
+    private const string PathForTestProject = "../../../../ProjectForCustomTests/bin/Debug/net6.0";
 
     [SetUp]
     public void Setup()
@@ -26,7 +26,7 @@ public class Tests
     public void TestsCancellingAfterOneOfThemFailed()
     {
         var countFromCanceled = CanceledTests.Count;
-        Assert.IsTrue(countFromCanceled == 0);
+        Assert.AreEqual(10, countFromCanceled);
     }
 }
 
