@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace MyNUnit;
 
@@ -10,7 +11,12 @@ public class MyNUnit
     private static IEnumerable<Assembly> GetAssemblies(string path)
     {
         var paths = Directory.GetFileSystemEntries(path, "*.dll", SearchOption.AllDirectories);
-        return paths.Select(Assembly.LoadFrom).ToList();
+        var assemblies = new ConcurrentBag<Assembly>();
+        Parallel.ForEach(paths, p =>
+        {
+            assemblies.Add(Assembly.LoadFrom(p));
+        });
+        return assemblies;
     }
     
     /// <summary>
@@ -31,6 +37,5 @@ public class MyNUnit
     {
         MyTestClass myTestClass = new(type);
         myTestClass.RunTestClass();
-        myTestClass.PrintReport();
     }
 }
