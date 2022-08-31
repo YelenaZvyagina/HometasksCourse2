@@ -1,13 +1,8 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+namespace MyFtpTests;
+
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using MyFtp;
 using NUnit.Framework;
-
-namespace MyFtpTests;
 
 [TestFixture]
 public class Tests

@@ -1,6 +1,4 @@
-﻿using static System.Boolean;
-
-namespace MyFtp;
+﻿namespace MyFtp;
 
 /// <summary>
 /// class for processing client. 
@@ -9,8 +7,6 @@ public class Client
 {
     private readonly IPAddress _ip;
     private readonly int _port;
-    private readonly TcpClient _client = new();
-    
     public Client(IPAddress ip, int port)
     {
         _ip = ip;
@@ -22,8 +18,9 @@ public class Client
     /// </summary>
     public async Task<List<(string name, bool isDir)>> List(string pathToDirectory, CancellationToken token)
     {
-        await _client.ConnectAsync(_ip.ToString(), _port, token);
-        await using var stream = _client.GetStream();
+        using var client = new TcpClient();
+        await client.ConnectAsync(_ip.ToString(), _port, token);
+        await using var stream = client.GetStream();
         await using var writer = new StreamWriter(stream) {AutoFlush = true};
         using var reader = new StreamReader(stream);
         await writer.WriteLineAsync($"1 {pathToDirectory} \n");
@@ -45,7 +42,7 @@ public class Client
             if (!token.IsCancellationRequested)
             {
                 var directoryName = splitted[i];
-                if (!TryParse(splitted[i + 1], out var isDir))
+                if (!bool.TryParse(splitted[i + 1], out var isDir))
                 {
                     throw new ArgumentException
                         ("Wrong format of received data. Boolean value is it a directory expected ");
@@ -65,8 +62,9 @@ public class Client
     /// </summary>
     public async Task<(long, string)> Get(string pathToFileOnServer, CancellationToken token)
     {
-        await _client.ConnectAsync(_ip.ToString(), _port, token);
-        await using var stream = _client.GetStream();
+        using var client = new TcpClient();
+        await client.ConnectAsync(_ip.ToString(), _port, token);
+        await using var stream = client.GetStream();
         await using var writer = new StreamWriter(stream) {AutoFlush = true};
         using var reader = new StreamReader(stream);
         await writer.WriteLineAsync($"2 {pathToFileOnServer} \n");

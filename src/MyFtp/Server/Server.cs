@@ -19,7 +19,7 @@ public class Server
         _server.Start();
         while (!_cancellationTokenSource.Token.IsCancellationRequested)
         {
-            var tcpClient = await _server.AcceptTcpClientAsync();
+            var tcpClient = await _server.AcceptTcpClientAsync(_cancellationTokenSource.Token);
             var request = Task.Run(() => ClientProcess(tcpClient));
             _requests.Add(request);
         }
@@ -37,21 +37,24 @@ public class Server
     /// </summary>
     private static async Task ClientProcess(TcpClient client)
     {
-        await using var stream = client.GetStream();
-        await using var writer = new StreamWriter(stream) {AutoFlush = true};
-        using var reader = new StreamReader(stream);
-        var args = (await reader.ReadLineAsync())!.Split(' ');
-
-        switch (args[0])
+        using (client)
         {
-            case "1":
-                await List(args[1], writer);
-                return;
-            case "2":
-                await Get(args[1], writer);
-                return;
-            default:
-                return;
+            await using var stream = client.GetStream();
+            await using var writer = new StreamWriter(stream) {AutoFlush = true};
+            using var reader = new StreamReader(stream);
+            var args = (await reader.ReadLineAsync())!.Split(' ');
+
+            switch (args[0])
+            {
+                case "1":
+                    await List(args[1], writer);
+                    return;
+                case "2":
+                    await Get(args[1], writer);
+                    return;
+                default:
+                    return;
+            }   
         }
     }
 
