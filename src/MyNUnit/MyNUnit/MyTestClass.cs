@@ -35,7 +35,10 @@ public class MyTestClass
     private static bool IsMethodOk(MethodInfo methodInfo, bool shouldBeStatic)
     {
         var isVoidAndParameterless = methodInfo.ReturnType == typeof(void) && methodInfo.GetParameters().Length == 0;
-        if (shouldBeStatic) return isVoidAndParameterless && methodInfo.IsStatic;
+        if (shouldBeStatic)
+        {
+            return isVoidAndParameterless && methodInfo.IsStatic;
+        }
         return isVoidAndParameterless && !methodInfo.IsStatic;
     }
 
@@ -110,7 +113,9 @@ public class MyTestClass
                 if (isTest)
                 {
                     if (attribute != null && attribute.Expected == exception.GetType())
+                    { 
                         _testStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs));
+                    }
                 }
                 else
                 {
