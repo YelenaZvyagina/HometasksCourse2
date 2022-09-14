@@ -15,9 +15,11 @@ public class MyTestClass
     private readonly IEnumerable<MethodInfo> _beforeMethods;
     private bool _needsToStop;
     private readonly ConcurrentBag<TestState> _testStates = new();
+    private readonly Type _classType;
 
     public MyTestClass(Type type)
     {
+        _classType = type;
         _testMethods = type.GetMethods()
             .Where(m => m.GetCustomAttributes(typeof(Test), false).Length > 0 && IsMethodOk(m, false));
         _afterMethods = type.GetMethods()
@@ -42,10 +44,22 @@ public class MyTestClass
     /// </summary>
     public void RunTestClass()
     {
-        foreach (var beforeClassMethod in _beforeClassMethods) CheckAndExecute(beforeClassMethod);
+        foreach (var beforeClassMethod in _beforeClassMethods) 
+        {
+            CheckAndExecute(beforeClassMethod);
+        }
+        
         Parallel.ForEach(_testMethods, RunTestMethod);
-        foreach (var afterClassMethod in _afterClassMethods) CheckAndExecute(afterClassMethod);
-        foreach (var test in _testStates) test.PrintTestState();
+        
+        foreach (var afterClassMethod in _afterClassMethods) 
+        {
+            CheckAndExecute(afterClassMethod);
+        }
+        
+        foreach (var test in _testStates) 
+        {
+            test.PrintTestState();
+        }
     }
 
     private void RunTestMethod(MethodInfo method)
@@ -68,7 +82,6 @@ public class MyTestClass
                 return;
             }
         }
-
         if (_needsToStop)
         {
             _testStates.Add(new TestState($"Test {method.Name} was canceled", TestResult.Canceled, method.Name, 0));
@@ -78,14 +91,13 @@ public class MyTestClass
             var watch = System.Diagnostics.Stopwatch.StartNew();
             try
             {
-                var obj = method.IsStatic ? null : Activator.CreateInstance(method.DeclaringType!);
+                var obj = method.IsStatic ? null : Activator.CreateInstance(_classType);
                 method.Invoke(obj, null);
                 watch.Stop();
                 var elapsedMs = watch.ElapsedMilliseconds;
 
                 if (attribute != null && attribute.Expected != null)
                 {
-                    _needsToStop = true;
                     _testStates.Add(new TestState($"Expected {attribute.Expected} exception", TestResult.Failed, method.Name, elapsedMs));
                 }
                 
@@ -114,6 +126,9 @@ public class MyTestClass
     /// </summary>
     public void PrintReport()
     {
-        foreach (var test in _testStates) test.PrintTestState();
+        foreach (var test in _testStates) 
+        {
+            test.PrintTestState();
+        }
     }
 }

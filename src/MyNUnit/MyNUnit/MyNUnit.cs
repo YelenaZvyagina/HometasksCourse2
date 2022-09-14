@@ -12,10 +12,7 @@ public class MyNUnit
     {
         var paths = Directory.GetFileSystemEntries(path, "*.dll", SearchOption.AllDirectories);
         var assemblies = new ConcurrentBag<Assembly>();
-        Parallel.ForEach(paths, p =>
-        {
-            assemblies.Add(Assembly.LoadFrom(p));
-        });
+        Parallel.ForEach(paths, p => assemblies.Add(Assembly.LoadFrom(p)));
         return assemblies;
     }
     
