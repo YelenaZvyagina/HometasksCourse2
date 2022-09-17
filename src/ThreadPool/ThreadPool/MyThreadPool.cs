@@ -54,8 +54,8 @@ public class MyThreadPool
     /// </summary>
     public IMyTask<TResult> Submit<TResult>(Func<TResult> function)
     {
-        var task = new MyTask<TResult>(function, this);
         ArgumentNullException.ThrowIfNull(function);
+        var task = new MyTask<TResult>(function, this);
         lock (_lockObject)
         {
             if (!_cancellationTokenSource.Token.IsCancellationRequested)
@@ -64,7 +64,7 @@ public class MyThreadPool
                 return task;
             } 
         }
-        throw new OperationCanceledException("ThreadPool is already shut down, sorry(");
+        throw new OperationCanceledException("ThreadPool is already shut down, sorry");
     }
         
     /// <summary>
