@@ -10,7 +10,7 @@ public class Tests
     [Test]
     public void SimpleTest1()
     {
-        MyThreadPool threadPool = new(1);
+        var threadPool = new MyThreadPool(1);
         var task = threadPool.Submit(() => 2 * 2);
         Assert.AreEqual(4, task.Result);
         threadPool.ShutDown();
@@ -19,7 +19,7 @@ public class Tests
     [Test]
     public void TasksDoingCorrectlyTests()
     {
-        MyThreadPool threadPool = new(5);
+        var threadPool = new MyThreadPool(5);
         var tasks = new IMyTask<int> [10];
 
         for (var i = 0; i < tasks.Length; i++)
@@ -39,7 +39,7 @@ public class Tests
     [Test]
     public void ContinueWithSimpleTest()
     {
-        MyThreadPool threadPool = new(5);
+        var threadPool = new MyThreadPool(5);
         var myTask = threadPool.Submit(() => 2 * 2).ContinueWith(x => x.ToString());
         Assert.AreEqual("4", myTask.Result);
         threadPool.ShutDown();
