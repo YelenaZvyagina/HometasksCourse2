@@ -4,9 +4,9 @@ using ThreadPool;
 
 namespace ThreadPoolTestss;
 
+[TestFixture]
 public class Tests
 {
-
     [Test]
     public void SimpleTest1()
     {
@@ -17,22 +17,22 @@ public class Tests
     }
 
     [Test]
-    public void TasksResultCorrectnessTest()
+    public void TasksDoingCorrectlyTests()
     {
         MyThreadPool threadPool = new(5);
         var tasks = new IMyTask<int> [10];
 
         for (var i = 0; i < tasks.Length; i++)
         {
-            var i1 = i;
-            tasks[i] = threadPool.Submit(() => i1 * 10);
+            var k = i;
+            tasks[i] = threadPool.Submit(() => k * 2);
         }
-            
+
         for (var i = 0; i < tasks.Length; ++i)
         {
-            Assert.AreEqual(i * 10, tasks[i].Result);
+            Assert.AreEqual(i * 2, tasks[i].Result);
         }
-            
+        
         threadPool.ShutDown();
     }
     
@@ -43,15 +43,5 @@ public class Tests
         var myTask = threadPool.Submit(() => 2 * 2).ContinueWith(x => x.ToString());
         Assert.AreEqual("4", myTask.Result);
         threadPool.ShutDown();
-    }
-
-    [Test]
-    public void ContinuationAfterShutdownTest()
-    {
-        MyThreadPool threadPool = new(2);
-        var task1 = threadPool.Submit(() => 2 * 2);
-        var task2 = threadPool.Submit(() => 2 * 2).ContinueWith(x => x.ToString());
-        threadPool.ShutDown();
-        Assert.AreEqual("4", task2.Result);
     }
 }

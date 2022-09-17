@@ -7,9 +7,9 @@ public class MyThreadPool
     private static readonly ConcurrentQueue<Action> TasksQueued = new();
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly AutoResetEvent _newTask = new(false);
-    private readonly AutoResetEvent _are = new(false);
+    private readonly AutoResetEvent _executing = new(false);
     private readonly object _lockObject = new();
-    private readonly int _executingThreads;
+    private int _executingThreads;
     private readonly Thread[] _threads;
 
     public MyThreadPool(int threadCount)
@@ -17,13 +17,13 @@ public class MyThreadPool
         if (threadCount < 1) throw new ArgumentException("Amount of threads should be positive");
         _threads = new Thread[threadCount]; 
         
-        for (var i = 0; i < threadCount; ++i)
+        for (var i = 0; i < threadCount; i++)
         {
             _threads[i] = new Thread(() =>
             {
                 while (!_cancellationTokenSource.IsCancellationRequested)
                 {
-                    if (TasksQueued.TryDequeue(out Action action))
+                    if (TasksQueued.TryDequeue(out var action))
                     {
                         action();
                     }
@@ -36,15 +36,17 @@ public class MyThreadPool
                         _newTask.Set();
                     }
                 }
+                Interlocked.Increment(ref _executingThreads);
+                _executing.Set();
             });
             _threads[i].Start();
-            Interlocked.Increment(ref _executingThreads);
         }
     }
         
     private void EnqueueTask(Action task)
     {
         TasksQueued.Enqueue(task);
+        _newTask.Set();
     }
         
     public IMyTask<TResult> Submit<TResult>(Func<TResult> function)
@@ -56,7 +58,6 @@ public class MyThreadPool
             if (!_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 EnqueueTask(task.RunTask);
-                _newTask.Set();
                 return task;
             } 
         }
@@ -72,6 +73,7 @@ public class MyThreadPool
         while (_executingThreads != _threads.Length)
         {
             _newTask.Set();
+            _executing.WaitOne();
         }
     }
     
