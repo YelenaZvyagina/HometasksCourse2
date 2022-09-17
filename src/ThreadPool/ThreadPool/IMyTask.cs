@@ -1,11 +1,11 @@
-﻿using System;
+﻿namespace ThreadPool;
 
-namespace ThreadPool
+/// <summary>
+/// Interface describing task
+/// </summary>
+public interface IMyTask<TResult>
 {
-    public interface IMyTask<TResult>
-    {
-        bool IsCompleted {get; set;} 
-        TResult Result {get; set;} 
-        IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func);
-    }
+    bool IsCompleted {get; set;} 
+    TResult Result {get; set;} 
+    IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func);
 }

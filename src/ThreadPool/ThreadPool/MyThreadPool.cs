@@ -2,6 +2,9 @@
 
 namespace ThreadPool;
 
+/// <summary>
+/// Custom threadpool for parallel task executing
+/// </summary>
 public class MyThreadPool
 {
     private static readonly ConcurrentQueue<Action> TasksQueued = new();
@@ -25,15 +28,12 @@ public class MyThreadPool
                 {
                     if (TasksQueued.TryDequeue(out var action))
                     {
+                        _newTask.Set();
                         action();
                     }
                     else
                     {
                         _newTask.WaitOne();
-                    }
-                    if (!TasksQueued.IsEmpty)
-                    {
-                        _newTask.Set();
                     }
                 }
                 Interlocked.Increment(ref _executingThreads);
@@ -49,6 +49,9 @@ public class MyThreadPool
         _newTask.Set();
     }
         
+    /// <summary>
+    /// Submitting task to execute on threadpool
+    /// </summary>
     public IMyTask<TResult> Submit<TResult>(Func<TResult> function)
     {
         var task = new MyTask<TResult>(function, this);
@@ -64,6 +67,9 @@ public class MyThreadPool
         throw new OperationCanceledException("ThreadPool is already shut down, sorry(");
     }
         
+    /// <summary>
+    /// Stops threadpool work
+    /// </summary>
     public void ShutDown()
     {
         lock (_lockObject)
@@ -77,6 +83,9 @@ public class MyThreadPool
         }
     }
     
+    /// <summary>
+    /// Task executing in threadpool
+    /// </summary>
     private class MyTask<TResult> : IMyTask<TResult> 
     {
         private static MyThreadPool _myThreadPool;
@@ -97,6 +106,9 @@ public class MyThreadPool
             set => _result = value;
         }
 
+        /// <summary>
+        /// For executing tasks one by one, using result of previous task in the next one
+        /// </summary>
         public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func)
         {
             var newTask = new MyTask<TNewResult>(() => func(Result), _myThreadPool);
@@ -120,6 +132,9 @@ public class MyThreadPool
             _myThreadPool = myThreadPool;
         }
             
+        /// <summary>
+        /// Executes task
+        /// </summary>
         public void RunTask()
         {
             try

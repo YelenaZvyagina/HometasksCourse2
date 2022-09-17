@@ -1,4 +1,3 @@
-using System.Threading;
 using NUnit.Framework;
 using ThreadPool;
 
@@ -21,18 +20,15 @@ public class Tests
     {
         var threadPool = new MyThreadPool(5);
         var tasks = new IMyTask<int> [10];
-
         for (var i = 0; i < tasks.Length; i++)
         {
             var k = i;
             tasks[i] = threadPool.Submit(() => k * 2);
         }
-
         for (var i = 0; i < tasks.Length; ++i)
         {
             Assert.AreEqual(i * 2, tasks[i].Result);
         }
-        
         threadPool.ShutDown();
     }
     
