@@ -10,9 +10,9 @@ public class MyThreadPool
     private static readonly ConcurrentQueue<Action> TasksQueued = new();
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly AutoResetEvent _newTask = new(false);
-    private readonly AutoResetEvent _executing = new(false);
+    private readonly AutoResetEvent _taskWait = new(false);
     private readonly object _lockObject = new();
-    private int _executingThreads;
+    private int _doneThreads;
     private readonly Thread[] _threads;
 
     public MyThreadPool(int threadCount)
@@ -36,8 +36,8 @@ public class MyThreadPool
                         _newTask.WaitOne();
                     }
                 }
-                Interlocked.Increment(ref _executingThreads);
-                _executing.Set();
+                Interlocked.Increment(ref _doneThreads);
+                _taskWait.Set();
             });
             _threads[i].Start();
         }
@@ -76,10 +76,10 @@ public class MyThreadPool
         {
             _cancellationTokenSource.Cancel();
         }
-        while (_executingThreads != _threads.Length)
+        while (_doneThreads != _threads.Length)
         {
             _newTask.Set();
-            _executing.WaitOne();
+            _taskWait.WaitOne();
         }
     }
     
