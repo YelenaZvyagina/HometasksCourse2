@@ -14,7 +14,7 @@ public class MyTestClass
     private readonly IEnumerable<MethodInfo> _afterMethods;
     private readonly IEnumerable<MethodInfo> _beforeMethods;
     private bool _needsToStop;
-    private readonly ConcurrentBag<TestState> _testStates = new();
+    public readonly ConcurrentBag<TestState> _testStates = new();
     private readonly Type _classType;
 
     public MyTestClass(Type type)
@@ -116,11 +116,14 @@ public class MyTestClass
                     { 
                         _testStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs));
                     }
+                    else
+                    {
+                        _testStates.Add(new TestState(exception.InnerException.Message, TestResult.Failed, method.Name, elapsedMs));
+                    }
                 }
                 else
                 {
                     _needsToStop = true;
-                    _testStates.Add(new TestState(exception.Message, TestResult.Failed, method.Name, elapsedMs));
                 }
             }
         }
