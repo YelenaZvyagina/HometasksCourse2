@@ -1,17 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿namespace MyNunitWeb.Data;
+
+using Microsoft.EntityFrameworkCore;
 using MyNunitWeb.Models;
 
-namespace MyNunitWeb.Data
+/// <summary>
+/// Class for interaction with database
+/// </summary>
+public class ApplicationDbContext : DbContext
 {
-    public class ApplicationDbContext : DbContext
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
-
-        }
-
-        // table inside db
-        public DbSet<TestModel> TestResults { get; set; }
-        public DbSet<AssemblyModel> TestAssmblies { get; set; }
     }
+
+    public DbSet<TestModel> TestResults { get; set; }
+    public DbSet<AssemblyModel> TestAssemblies { get; set; }
 }

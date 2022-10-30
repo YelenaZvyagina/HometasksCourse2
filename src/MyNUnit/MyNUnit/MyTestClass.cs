@@ -14,8 +14,8 @@ public class MyTestClass
     private readonly IEnumerable<MethodInfo> _afterMethods;
     private readonly IEnumerable<MethodInfo> _beforeMethods;
     private bool _needsToStop;
-    public readonly ConcurrentBag<TestState> _testStates = new();
     private readonly Type _classType;
+    public ConcurrentBag<TestState> TestStates { get; private set; } = new();
 
     public MyTestClass(Type type)
     {
@@ -59,7 +59,7 @@ public class MyTestClass
             CheckAndExecute(afterClassMethod);
         }
         
-        foreach (var test in _testStates) 
+        foreach (var test in TestStates) 
         {
             test.PrintTestState();
         }
@@ -81,13 +81,13 @@ public class MyTestClass
             isTest = true;
             if (attribute.Ignore != null)
             {
-                _testStates.Add(new TestState(method.Name, attribute.Ignore));
+                TestStates.Add(new TestState(method.Name, attribute.Ignore));
                 return;
             }
         }
         if (_needsToStop)
         {
-            _testStates.Add(new TestState($"Test {method.Name} was canceled", TestResult.Canceled, method.Name, 0));
+            TestStates.Add(new TestState($"Test {method.Name} was canceled", TestResult.Canceled, method.Name, 0));
         }
         else
         {
@@ -101,10 +101,10 @@ public class MyTestClass
 
                 if (attribute != null && attribute.Expected != null)
                 {
-                    _testStates.Add(new TestState($"Expected {attribute.Expected} exception", TestResult.Failed, method.Name, elapsedMs));
+                    TestStates.Add(new TestState($"Expected {attribute.Expected} exception", TestResult.Failed, method.Name, elapsedMs));
                 }
                 
-                _testStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs));
+                TestStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs));
             }
             catch (Exception exception)
             {
@@ -114,11 +114,11 @@ public class MyTestClass
                 {
                     if (attribute != null && attribute.Expected == exception.GetType())
                     { 
-                        _testStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs));
+                        TestStates.Add(new TestState("", TestResult.Success, method.Name, elapsedMs));
                     }
                     else
                     {
-                        _testStates.Add(new TestState(exception.InnerException.Message, TestResult.Failed, method.Name, elapsedMs));
+                        TestStates.Add(new TestState(exception.InnerException.Message, TestResult.Failed, method.Name, elapsedMs));
                     }
                 }
                 else
@@ -134,7 +134,7 @@ public class MyTestClass
     /// </summary>
     public void PrintReport()
     {
-        foreach (var test in _testStates) 
+        foreach (var test in TestStates) 
         {
             test.PrintTestState();
         }

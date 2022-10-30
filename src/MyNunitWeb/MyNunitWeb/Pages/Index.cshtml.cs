@@ -1,66 +1,63 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿namespace MyNunitWeb.Pages;
+
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MyNunitWeb.Models;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 using MyNUnit;
 using System.Collections.Concurrent;
 using MyNunitWeb.Data;
 
-namespace MyNunitWeb.Pages
+public class IndexModel : PageModel
 {
-    public class IndexModel : PageModel
+    private readonly IWebHostEnvironment _environment;
+    private readonly ApplicationDbContext _dbContext;
+
+    [BindProperty]
+    public List<string> LoadedFilePaths { get; set; } = new List<string>();
+
+    public List<AssemblyModel> Assemblies { get; set; } = new List<AssemblyModel>();
+
+    public IndexModel(IWebHostEnvironment environment, ApplicationDbContext dbContext)
     {
-        private readonly ILogger<IndexModel> _logger;
-        private IHostingEnvironment _environment;
-        private ApplicationDbContext _dbContext;
+        _environment = environment;
+        _dbContext = dbContext;
+    }
 
-        [BindProperty]
-        public List<string> LoadedFilePaths { get; set; } = new List<string>();
+    public void OnGet()
+    {
+    }
 
-        public List<AssemblyModel> Assemblies { get; set; } = new List<AssemblyModel>();
-
-        public IndexModel(ILogger<IndexModel> logger, IHostingEnvironment environment, ApplicationDbContext dbContext)
+    public void OnPost(IFormFile[] dlls)
+    {
+        if (dlls != null && dlls.Length > 0)
         {
-            _logger = logger;
-            _environment = environment;
-            _dbContext = dbContext;
-        }
-
-        public void OnGet()
-        {
-        }
-
-        public void OnPost(IFormFile[] dlls)
-        {
-            if (dlls != null && dlls.Length > 0)
+            foreach (IFormFile dll in dlls)
             {
-                foreach (IFormFile dll in dlls)
-                {
-                    var path = Path.Combine(_environment.WebRootPath, "dlls", dll.FileName);
-                    using var stream = new FileStream(path, FileMode.Create);
-                    dll.CopyToAsync(stream);
-                    LoadedFilePaths.Add(path);
-                }
+                var path = Path.Combine(_environment.WebRootPath, "dlls", dll.FileName);
+                using var stream = new FileStream(path, FileMode.Create);
+                dll.CopyToAsync(stream);
+                LoadedFilePaths.Add(path);
             }
-            return;
         }
+        return;
+    }
 
-        public void OnPostStartTesting()
-        {
-            ProcessTests();
-            SaveResultsToDb();
-        }
+    public void OnPostStartTesting()
+    {
+        ProcessTests();
+        SaveResultsToDb();
+    }
 
-        private void ProcessTests()
+    private void ProcessTests()
+    {
+        var testAndAssemblies = RunTestsWithMyNuint(LoadedFilePaths);
+        foreach (var assembly in testAndAssemblies)
         {
-            var testAndAssemblies = RunTestsWithMyNuint(LoadedFilePaths);
-            foreach(var a in testAndAssemblies)
+            var tests = new List<TestModel>();
+            foreach (var test in assembly.Value.ToList())
             {
-                var tests = new List<TestModel>();
-                foreach (var test in a.Value.ToList())
-                {
-                    tests.Add
-                    (
+                tests.Add
+                (
                     new TestModel
                     {
                         Name = test.TestName,
@@ -69,26 +66,24 @@ namespace MyNunitWeb.Pages
                         Result = test.Result.ToString()
                     }
                 );
-                }
-                Assemblies.Add
-                ( new AssemblyModel { Name = a.Key, Tests = tests} );
             }
+            Assemblies.Add(new AssemblyModel { Name = assembly.Key, Tests = tests });
         }
-    
-        private Dictionary<string, ConcurrentBag<TestState>> RunTestsWithMyNuint(List<string> testPaths)
-        {
-            var myNUnit = new MyNUnit.MyNUnit();
-            return myNUnit.GetTestResultsAndAssembliesByPath(testPaths);
-        }
+    }
 
-        private void SaveResultsToDb()
+    private Dictionary<string, ConcurrentBag<TestState>> RunTestsWithMyNuint(List<string> testPaths)
+    {
+        var myNUnit = new MyNUnit();
+        return myNUnit.GetTestResultsAndAssembliesByPath(testPaths);
+    }
+
+    private void SaveResultsToDb()
+    {
+        _dbContext.TestAssemblies.AddRange(Assemblies);
+        foreach (var assembly in Assemblies)
         {
-            _dbContext.TestAssmblies.AddRange(Assemblies);
-            foreach( var assembly in Assemblies)
-            {
-                _dbContext.TestResults.AddRange(assembly.Tests);
-            }
-            _dbContext.SaveChanges();
+            _dbContext.TestResults.AddRange(assembly.Tests);
         }
+        _dbContext.SaveChanges();
     }
 }

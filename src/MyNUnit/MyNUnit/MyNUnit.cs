@@ -35,7 +35,7 @@ public class MyNUnit
     public Dictionary<string, ConcurrentBag<TestState>> GetTestResultsAndAssembliesByPath(List<string> paths)
     {
         var result = new Dictionary<string, ConcurrentBag<TestState>>();
-        foreach(var path in paths)
+        foreach (var path in paths)
         {
             var assembly = Assembly.LoadFrom(path);
             var testResults = new ConcurrentBag<TestState>();
@@ -47,7 +47,7 @@ public class MyNUnit
                 {
                     MyTestClass myTestClass = new(type);
                     myTestClass.RunTestClass();
-                    Helper.AddRange(testResults, myTestClass._testStates);
+                    Helper.AddRange(testResults, myTestClass.TestStates);
                 });
                 result.Add(assemblyName, testResults);
             }
