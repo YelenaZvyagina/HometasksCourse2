@@ -4,21 +4,21 @@
 
 namespace MyNunitWeb.Migrations
 {
-    public partial class AddTestResultsToDb : Migration
+    public partial class AddTestAssembliesToDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "TestAssmblies",
+                name: "TestAssemblies",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TestAssmblies", x => x.Id);
+                    table.PrimaryKey("PK_TestAssemblies", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -27,20 +27,21 @@ namespace MyNunitWeb.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Result = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IgnoreReason = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Result = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IgnoreReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExecutionTime = table.Column<long>(type: "bigint", nullable: false),
-                    AssemblyModelId = table.Column<int>(type: "int", nullable: true)
+                    AssemblyModelId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TestResults", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TestResults_TestAssmblies_AssemblyModelId",
+                        name: "FK_TestResults_TestAssemblies_AssemblyModelId",
                         column: x => x.AssemblyModelId,
-                        principalTable: "TestAssmblies",
-                        principalColumn: "Id");
+                        principalTable: "TestAssemblies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -55,7 +56,7 @@ namespace MyNunitWeb.Migrations
                 name: "TestResults");
 
             migrationBuilder.DropTable(
-                name: "TestAssmblies");
+                name: "TestAssemblies");
         }
     }
 }
