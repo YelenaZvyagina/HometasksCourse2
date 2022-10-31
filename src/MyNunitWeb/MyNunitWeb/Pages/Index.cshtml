@@ -1,0 +1,106 @@
+﻿@page
+@using MyNUnit
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+
+    <div class="container" p-3>
+        <h2>Welcome</h2>
+        <br/>
+        <div>
+            <h6>
+                MyNunitWeb is a simple tool to run tests. To run your tests upload dll files, containing testing classes and unit tests
+                and press "Run tests" button. You can see your tests launch history at the <a asp-page="/History">History</a> page.
+            </h6>
+
+        </div>
+    </div>
+
+    <div class="container" p-3>
+        <div class="row pt-4 align-content-center">
+
+            <div class="container">
+                <form method="post" asp-page="Index" enctype="multipart/form-data">
+
+                    <div class="row align-items-center">
+                        <div class="col-10">
+                            <input class="form-control" name="dlls" type="file" id="formFile">
+                        </div>
+                        <div class="col-1">
+                            <input type="submit" value="Upload" class="btn btn-outline-secondary" />
+                        </div>
+                        <div class="col-1"></div>
+                    </div>
+
+                    @if (Model.LoadedFilePaths != null)
+                    {
+                        @for (int i = 0; i < Model.LoadedFilePaths.Count; i++)
+                        {
+                            <input hidden="hidden" asp-for="@Model.LoadedFilePaths[i]" value="@Model.LoadedFilePaths[i]" class="form-control" />
+                        }
+                    }
+
+                    <div class="m-4 align-content-center">
+                        <label> <strong>Selected files:</strong> </label>
+                        @for (int i = 0; i < Model.LoadedFilePaths.Count; i++)
+                        {
+                            @if (i == Model.LoadedFilePaths.Count - 1) {
+                                <label>
+                                    @Model.LoadedFilePaths[i].
+                                </label>
+                            }
+                            else {
+                                <label>
+                                    @Model.LoadedFilePaths[i]; 
+                                </label>
+                            }
+                        }
+                    </div>
+                    <div class="m-4 align-content-center">
+                        <button type="submit" asp-page-handler="StartTesting" class="btn btn-secondary">Run tests</button>
+                    </div>
+                </form>
+            </div>
+
+            <div>
+                @foreach (var assembly in Model.Assemblies)
+                {
+                    <label class="text-lg-start"><strong>@assembly.Name</strong></label>
+                    <br/>
+                    <table class="table table-bordered table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Test name
+                                </th>
+                                <th>
+                                    Test status
+                                </th>
+                                <th>
+                                    Test run information
+                                </th>
+                                <th>
+                                    Execution time (ms)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var test in assembly.Tests)
+                            {
+                                <tr class = @(Helper.GetTableRowType(test.Result)) >
+                                <td width="10%">@test.Name</td>
+                                <td width="30%">@test.Result</td>
+                                    <td width="30%">@test.IgnoreReason</td>
+                                <td width="10%">@test.ExecutionTime.ToString()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>

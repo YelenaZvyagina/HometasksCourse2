@@ -1,0 +1,55 @@
+﻿@page
+@model MyNunitWeb.Pages.HistoryModel
+@{
+    <div class="container p-3">
+            <div class="row pt-4">
+                <div class="col-6">
+                    <h2>Tests run history</h2>  
+                </div>
+            </div>
+
+        <div class="mt-4">
+            @foreach (var assembly in Model.TestsAssemblies)
+            {
+                <div class="mt-5">
+                    <label class><strong>@assembly.Name</strong>
+                    total tests: @assembly.Tests.Count, 
+                    success: @Model.GetAmountOfTestsOfResult(assembly, MyNUnit.TestResult.Success),
+                    failed: @Model.GetAmountOfTestsOfResult(assembly, MyNUnit.TestResult.Failed),
+                    ignored: @Model.GetAmountOfTestsOfResult(assembly, MyNUnit.TestResult.Ignored)
+                    </label>
+                    <br>
+                    <table class="table table-bordered table-striped" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Test name
+                                </th>
+                                <th>
+                                    Test status
+                                </th>
+                                <th>
+                                    Test run information
+                                </th>
+                                <th>
+                                    Execution time (ms)
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var test in assembly.Tests)
+                            {
+                                <tr class=@(Helper.GetTableRowType(test.Result))>
+                                    <td width="10%">@test.Name</td>
+                                    <td width="30%">@test.Result</td>
+                                    <td width="30%">@test.IgnoreReason</td>
+                                    <td width="10%">@test.ExecutionTime.ToString()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}

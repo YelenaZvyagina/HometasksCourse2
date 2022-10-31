@@ -5,28 +5,28 @@
 /// </summary>
 public readonly struct TestState
 {
-    private readonly TestResult _result;
-    private readonly string _errorMessage;
-    private readonly string _testName;
-    private readonly long _executionTime;
-    private readonly string _ignoreReason;
+    public readonly TestResult Result;
+    public readonly string ErrorMessage;
+    public readonly string TestName;
+    public readonly long ExecutionTime;
+    public readonly string IgnoreReason;
 
     public TestState(string testName, string ignoreReason)
     {
-        _testName = testName;
-        _ignoreReason = ignoreReason;
-        _errorMessage = "";
-        _executionTime = 0;
-        _result = TestResult.Ignored;
+        TestName = testName;
+        IgnoreReason = ignoreReason;
+        ErrorMessage = "";
+        ExecutionTime = 0;
+        Result = TestResult.Ignored;
     }
     
     public TestState(string errorMessage, TestResult result, string testName, long executionTime)
     {
-        _result = result;
-        _errorMessage = errorMessage;
-        _testName = testName;
-        _executionTime = executionTime;
-        _ignoreReason = "";
+        Result = result;
+        ErrorMessage = errorMessage;
+        TestName = testName;
+        ExecutionTime = executionTime;
+        IgnoreReason = "";
     }
 
     /// <summary>
@@ -34,26 +34,26 @@ public readonly struct TestState
     /// </summary>
     public void PrintTestState()
     {
-        switch (_result)
+        switch (Result)
         {
             case TestResult.Canceled:
             { 
-                Console.WriteLine($"{_testName} was canceled because some of previous tests had failed");
+                Console.WriteLine($"{TestName} was canceled because some of previous tests had failed");
                 break;
             }
             case TestResult.Failed:
             {
-                Console.WriteLine($"{_testName} failed with {_errorMessage}. Execution time {_executionTime}");
+                Console.WriteLine($"{TestName} failed with {ErrorMessage}. Execution time {ExecutionTime}");
                 break;
             }
             case TestResult.Success:
             {
-                Console.WriteLine($"{_testName} was executed successfully! Execution time {_executionTime}");
+                Console.WriteLine($"{TestName} was executed successfully! Execution time {ExecutionTime}");
                 break;
             }
             case TestResult.Ignored:
             {
-                Console.WriteLine($"Test {_testName} was ignored. Ignore reason: {_ignoreReason}");
+                Console.WriteLine($"Test {TestName} was ignored. Ignore reason: {IgnoreReason}");
                 break;
             }
         }
