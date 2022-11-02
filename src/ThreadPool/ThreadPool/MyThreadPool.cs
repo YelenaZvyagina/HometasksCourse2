@@ -1,6 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿namespace ThreadPool;
 
-namespace ThreadPool;
+using System.Collections.Concurrent;
 
 /// <summary>
 /// Custom threadpool for parallel task executing
@@ -17,7 +17,10 @@ public class MyThreadPool
 
     public MyThreadPool(int threadCount)
     {
-        if (threadCount < 1) throw new ArgumentException("Amount of threads should be positive");
+        if (threadCount < 1)
+        {
+            throw new ArgumentException("Amount of threads should be positive");
+        }
         _threads = new Thread[threadCount]; 
         
         for (var i = 0; i < threadCount; i++)
@@ -28,6 +31,7 @@ public class MyThreadPool
                 {
                     if (TasksQueued.TryDequeue(out var action))
                     {
+                        _newTask.Set();
                         action();
                     }
                     else
@@ -41,7 +45,10 @@ public class MyThreadPool
             _threads[i].Start();
         }
     }
-        
+    
+    /// <summary>
+    /// Adds task to a queue
+    /// </summary>
     private void EnqueueTask(Action task)
     {
         TasksQueued.Enqueue(task);
@@ -90,8 +97,9 @@ public class MyThreadPool
         private static MyThreadPool _myThreadPool;
         private Func<TResult> _taskFunction;
         private readonly ManualResetEvent _taskCompleted = new(false);
-        private object lockObject = new();
-        private readonly Queue<Action> continueQueue = new();
+        private readonly object lockObject = new();
+        private readonly Queue<Action> _continueQueue = new();
+        private Exception _exception;
 
         public bool IsCompleted {get; set;}
 
@@ -100,9 +108,16 @@ public class MyThreadPool
             get
             {
                 _taskCompleted.WaitOne();
+                if (_exception != null)
+                {
+                    throw new AggregateException($"Task failed: {_exception}");
+                }
                 return _result;
-            }
-            set => _result = value;
+            } 
+            set
+            {
+                _result = value;
+            } 
         }
 
         /// <summary>
@@ -115,7 +130,7 @@ public class MyThreadPool
             {
                 if (!IsCompleted)
                 {
-                    continueQueue.Enqueue(newTask.RunTask);
+                    _continueQueue.Enqueue(newTask.RunTask);
                 }
                 else
                 {
@@ -142,16 +157,19 @@ public class MyThreadPool
             }
             catch (Exception exception)
             {
-                throw new AggregateException($"Task failed with an exception {exception}");
+                _exception = new AggregateException(exception);
             }
             finally
             {
-                _taskFunction = null;
-                IsCompleted = true;
-                _taskCompleted.Set();
-                while (continueQueue.Count != 0)
+                lock (lockObject)
                 {
-                    _myThreadPool.EnqueueTask(continueQueue.Dequeue());
+                    _taskFunction = null;
+                    IsCompleted = true;
+                    _taskCompleted.Set();
+                    while (_continueQueue.Count != 0)
+                    {
+                        _myThreadPool.EnqueueTask(_continueQueue.Dequeue());
+                    }
                 }
             }
         }
