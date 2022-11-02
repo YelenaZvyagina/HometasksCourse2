@@ -90,19 +90,19 @@ public class Tests
     public void ConcurrentTest1()
     {
         var threads = new Thread[5];
-        var pool = new MyThreadPool(1);
+        var threadPool = new MyThreadPool(1);
         var tasks = new IMyTask<int>[5];
         for (var i = 0; i < 4; ++i)
         {
             var k = i;
             threads[i] = new Thread(() => 
             {
-                tasks[k] = pool.Submit(() => k * 2);
+                tasks[k] = threadPool.Submit(() => k * 2);
             });
         }
         threads[4] = new Thread(() =>
         { 
-            pool.ShutDown();
+            threadPool.ShutDown();
         });
         foreach (var thread in threads)
         {
@@ -116,6 +116,6 @@ public class Tests
         {
             Assert.IsTrue(tasks[i].Result == i * 2);
         }
-        pool.ShutDown();
+        threadPool.ShutDown();
     }
 }
